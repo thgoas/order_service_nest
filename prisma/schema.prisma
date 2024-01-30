@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid()) 
+  name String
+  email String @unique
+  password String
+  status Boolean @default(true)
+  profile_id String 
+  profile Profile @relation(fields: [profile_id], references: [id])
+  order_service OrderService?
+  created_at DateTime @default(now())
+  updated_at DateTime?
+  history_all HistoryAll[]
+  @@map("users")
+}
+
+model Profile {
+  id String @id @default(cuid())
+  name String @unique
+  description String
+  created_at DateTime @default(now())
+  updated_at DateTime?
+  user User[]
+  @@map("profiles")
+}
+
+model OrderService {
+  id String @id @default(cuid())
+  description String
+  status_id String @unique
+  status Status @relation(fields: [status_id], references: [id])
+  serie_number String
+  user_id String 
+  user User @relation(fields: [technician_id], references: [id])
+  date_entry DateTime
+  daparture_date DateTime
+  technician_id String @unique
+  image Image[]
+  history_order_service historyOrderService []
+  @@map("order_services")
+}
+
+model Status {
+  id String @id @default(cuid())
+  description String
+  order_service OrderService?
+  created_at DateTime @default(now())
+  updated_at DateTime?
+  @@map("status")
+}
+
+model Image {
+  id String @id @default(cuid())
+  description String?
+  path String
+  order_id String 
+  order_service OrderService @relation(fields: [order_id], references: [id])
+  created_at DateTime @default(now())
+  @@map("images")
+}
+
+model historyOrderService {
+  id String @id @default(cuid())
+  description String
+  order_id String
+  order_service OrderService @relation(fields: [order_id], references: [id])
+  date DateTime @default(now())
+  @@map("history_order_service")
+}
+
+model HistoryAll {
+  id String @id @default(cuid())
+  description String
+  user_id String
+  user User @relation(fields: [user_id], references: [id])
+  @@map("history_all")
+}
+
+
