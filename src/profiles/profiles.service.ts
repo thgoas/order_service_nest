@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../common/prisma/prisma.service';
 
@@ -6,6 +11,15 @@ import { PrismaService } from '../common/prisma/prisma.service';
 export class ProfilesService {
   constructor(private readonly prisma: PrismaService) {}
   async create(createProfileDto: Prisma.ProfileCreateInput) {
+    if (createProfileDto.name === '' || createProfileDto.name === null) {
+      throw new HttpException('cannot be empty!', HttpStatus.FORBIDDEN);
+    }
+    if (
+      createProfileDto.description === '' ||
+      createProfileDto.description === null
+    ) {
+      throw new HttpException('cannot be empty!', HttpStatus.FORBIDDEN);
+    }
     try {
       return await this.prisma.profile.create({
         data: {
@@ -13,8 +27,9 @@ export class ProfilesService {
         },
       });
     } catch (error) {
-      console.log(error.code);
-      if ((error.code = 'P2002')) {
+      console.error(error);
+
+      if (error.code === 'P2002') {
         throw new HttpException(
           `name ${createProfileDto.name} already exists in the database!`,
           HttpStatus.UNAUTHORIZED,
@@ -53,11 +68,18 @@ export class ProfilesService {
       });
     } catch (error) {
       console.error('Update Error', error);
-      throw new HttpException(error.meta.cause, HttpStatus.FOUND);
+      throw new NotFoundException(error.meta.cause);
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} profile`;
+  async remove(id: string) {
+    try {
+      return await this.prisma.profile.delete({ where: { id } });
+    } catch (error) {
+      console.error(error);
+      if (error.code === 'P2025') {
+        throw new NotFoundException(error.meta.cause);
+      }
+    }
   }
 }
