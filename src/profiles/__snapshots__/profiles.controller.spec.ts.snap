@@ -1,5 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`ProfilesController should throw an http exception: cannot be empt! 1`] = `"cannot be empty!"`;
-
-exports[`ProfilesController should throw an http exception: cannot be empty! 1`] = `"cannot be empty!"`;
