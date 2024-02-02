@@ -6,8 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { Prisma } from '@prisma/client';
@@ -18,16 +16,6 @@ export class ProfilesController {
 
   @Post()
   create(@Body() createProfileDto: Prisma.ProfileCreateInput) {
-    if (createProfileDto.name === '' || createProfileDto.name === null) {
-      throw new HttpException('cannot be empty!', HttpStatus.FORBIDDEN);
-    }
-    if (
-      createProfileDto.description === '' ||
-      createProfileDto.description === null
-    ) {
-      throw new HttpException('cannot be empty!', HttpStatus.FORBIDDEN);
-    }
-
     return this.profilesService.create(createProfileDto);
   }
 
@@ -51,6 +39,6 @@ export class ProfilesController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.profilesService.remove(+id);
+    return this.profilesService.remove(id);
   }
 }
