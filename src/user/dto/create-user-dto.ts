@@ -1,12 +1,12 @@
-export class User {
-  readonly id: string;
+export class CreateUserDto {
+  readonly id?: string;
   readonly name: string;
   readonly email: string;
   readonly password: string;
-  readonly status: boolean;
+  readonly status?: boolean;
   readonly profile_id: string;
-  readonly created_at: Date;
-  readonly updated_at: Date;
+  readonly created_at?: Date;
+  readonly updated_at?: Date;
   constructor(
     id: string,
     name: string,
