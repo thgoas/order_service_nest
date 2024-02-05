@@ -7,7 +7,6 @@ import { fakeProfiles } from './mock_data/fakeProfiles';
 
 describe('ProfilesService', () => {
   let service: ProfilesService;
-  // let prismaMock: PrismaService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -16,7 +15,6 @@ describe('ProfilesService', () => {
     }).compile();
 
     service = module.get<ProfilesService>(ProfilesService);
-    // prismaMock = module.get<PrismaService>(PrismaService);
   });
 
   afterEach(() => {
@@ -76,19 +74,16 @@ describe('ProfilesService', () => {
         description: 'Test Description',
       };
 
-      // Mockando o método create do serviço para lançar uma exceção
       jest
         .spyOn(service['prisma'].profile, 'create')
         .mockRejectedValueOnce(
           new HttpException('cannot be empty!', HttpStatus.FORBIDDEN),
         );
 
-      // Chama o método create do controller e espera que ele lance uma exceção
       await expect(service.create(createProfileDto)).rejects.toThrow(
         new HttpException('cannot be empty!', HttpStatus.FORBIDDEN),
       );
 
-      // Verifica se o método create do serviço foi chamado corretamente
       expect(service['prisma'].profile.create).not.toHaveBeenCalledWith();
     });
 
