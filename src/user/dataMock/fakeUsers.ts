@@ -1,4 +1,6 @@
-export const fakeUsers = [
+import { User } from '../entities/user.entity';
+
+export const fakeUsers: User[] = [
   {
     id: '1',
     name: 'user 1',
