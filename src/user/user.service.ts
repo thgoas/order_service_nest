@@ -4,10 +4,14 @@ import { CreateUserDto } from './dto/create-user-dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { EmailValidator } from '../utils/email-validator';
 import { PasswordHasher } from '../utils/password-hasher';
+import { MailingService } from '../email/mailing.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailingService: MailingService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     const emailValidator = new EmailValidator();
@@ -47,22 +51,19 @@ export class UserService {
       createUserDto.password,
     );
     try {
-      return await this.prisma.user.create({
+      const result = await this.prisma.user.create({
         data: {
           ...createUserDto,
           password: passwordHash,
         },
       });
+      await this.mailingService.sendUserConfirmation(result, '123456');
+      return result;
     } catch (error) {
-      // console.error(error);
-      if (
-        error.code === 'P2003' &&
-        error.meta.field_name.includes('users_profile_id_fkey')
-      ) {
-        throw new HttpException(
-          'profile_id does not exist!',
-          HttpStatus.FORBIDDEN,
-        );
+      if (error.code && error.meta) {
+        throw new HttpException(error.meta.field_name, HttpStatus.BAD_GATEWAY);
+      } else {
+        throw new Error(error);
       }
     }
   }
@@ -80,13 +81,63 @@ export class UserService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return this.prisma.user.update({
-      where: {
-        id: id,
-      },
-      data: updateUserDto,
-    });
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    console.log(updateUserDto);
+    // const passwordHash = await PasswordHasher.hashPassword(
+    //   createUserDto.password,
+    // );
+    if (updateUserDto.name === '' || updateUserDto.name === null) {
+      throw new HttpException('Invalid Name!', HttpStatus.FORBIDDEN);
+    }
+
+    if (updateUserDto.email === '' || updateUserDto.email === null) {
+      throw new HttpException('Invalid Email!', HttpStatus.FORBIDDEN);
+    }
+
+    if (updateUserDto.password === '' || updateUserDto.password === null) {
+      throw new HttpException(
+        'password cannot be empty!',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (updateUserDto.profile_id === '' || updateUserDto.profile_id === null) {
+      throw new HttpException(
+        'profile_id cannot be empty!',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (updateUserDto.password && updateUserDto.password.length < 6) {
+      throw new HttpException(
+        'Password must be greater than or equal to 6 characters',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const passwordHash = await PasswordHasher.hashPassword(
+      updateUserDto.password,
+    );
+
+    try {
+      return await this.prisma.user.update({
+        where: {
+          id: id,
+        },
+        data: {
+          ...updateUserDto,
+          updated_at: new Date(),
+          password: passwordHash,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      if (error.code && error.meta) {
+        throw new HttpException(error.meta.field_name, HttpStatus.BAD_GATEWAY);
+      } else {
+        throw new Error(error);
+      }
+    }
   }
 
   remove(id: string) {
