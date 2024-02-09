@@ -114,7 +114,7 @@ describe('ProfilesService', () => {
 
       jest
         .spyOn(service['prisma'].profile, 'create')
-        .mockRejectedValue(duplicateError);
+        .mockRejectedValue('Duplicate name error');
       try {
         await service.create(createProfileDto);
       } catch (error) {
