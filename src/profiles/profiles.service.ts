@@ -27,13 +27,13 @@ export class ProfilesService {
         },
       });
     } catch (error) {
-      console.error(error);
-
       if (error.code === 'P2002') {
         throw new HttpException(
           `name ${createProfileDto.name} already exists in the database!`,
           HttpStatus.UNAUTHORIZED,
         );
+      } else {
+        throw new Error(error);
       }
     }
   }
@@ -42,7 +42,7 @@ export class ProfilesService {
     try {
       return this.prisma.profile.findMany();
     } catch (error) {
-      console.error(error);
+      throw new Error(error);
     }
   }
 
@@ -52,7 +52,7 @@ export class ProfilesService {
         where: { id },
       });
     } catch (error) {
-      console.error(error);
+      throw new Error(error);
     }
   }
 
@@ -76,9 +76,10 @@ export class ProfilesService {
     try {
       return await this.prisma.profile.delete({ where: { id } });
     } catch (error) {
-      console.error(error);
       if (error.code === 'P2025') {
         throw new NotFoundException(error.meta.cause);
+      } else {
+        throw new Error(error);
       }
     }
   }
