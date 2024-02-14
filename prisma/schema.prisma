@@ -32,7 +32,19 @@ model Profile {
   created_at DateTime @default(now())
   updated_at DateTime?
   user User[]
+  Permission Permission[]
   @@map("profiles")
+}
+
+model Permission {
+  id String @id @default(cuid())
+  name String @unique
+  description String
+  created_at DateTime @default(now())
+  updated_at DateTime?
+  profile_id String
+  profile Profile @relation(fields: [profile_id], references: [id])
+  @@map("permissions")
 }
 
 model OrderService {
