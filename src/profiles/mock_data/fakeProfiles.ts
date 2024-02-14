@@ -13,4 +13,4 @@ export const fakeProfiles = [
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
   },
-];
+]

@@ -1,4 +1,4 @@
-import { User } from '../entities/user.entity';
+import { User } from '../entities/user.entity'
 
 export const fakeUsers: User[] = [
   {
@@ -31,4 +31,4 @@ export const fakeUsers: User[] = [
     created_at: new Date(2024, 2, 1),
     updated_at: new Date(2024, 2, 1),
   },
-];
+]
