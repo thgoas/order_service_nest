@@ -3,7 +3,7 @@ import { UserService } from './user.service'
 import { CommonModule } from '../common/common.module'
 import { PrismaService } from '../common/prisma/prisma.service'
 import { fakeUsers } from './dataMock/fakeUsers'
-import { HttpException, HttpStatus } from '@nestjs/common'
+import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common'
 import { CreateUserDto } from './dto/create-user-dto'
 import { PasswordHasher } from '../utils/password-hasher'
 import { MailingService } from '../email/mailing.service'
@@ -415,6 +415,36 @@ describe('UserService', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(HttpException)
         expect(error.getStatus()).toEqual(HttpStatus.BAD_GATEWAY)
+      }
+    })
+  })
+  describe('user delete', () => {
+    it('should return success for delete user', async () => {
+      jest
+        .spyOn(service['prisma'].user, 'delete')
+        .mockResolvedValue(fakeUsers[0])
+      const result = await service.remove('1')
+
+      expect(result).toEqual(fakeUsers[0])
+      expect(service['prisma'].user.delete).toHaveBeenCalledTimes(1)
+      expect(service['prisma'].user.delete).toHaveBeenCalledWith({
+        where: { id: '1' },
+      })
+    })
+    it('should return Exception for null or wrong id', async () => {
+      await expect(service.remove('')).rejects.toThrow(
+        new HttpException('id cannot be null', HttpStatus.BAD_GATEWAY),
+      )
+    })
+    it('should return Exception for id does not exist', async () => {
+      jest
+        .spyOn(service['prisma'].user, 'delete')
+        .mockRejectedValue(new Error())
+
+      try {
+        await service.remove('66')
+      } catch (error) {
+        expect(error).toEqual(new NotFoundException(error))
       }
     })
   })
