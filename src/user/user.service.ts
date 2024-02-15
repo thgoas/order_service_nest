@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { PrismaService } from '../common/prisma/prisma.service'
 import { CreateUserDto } from './dto/create-user-dto'
 import { UpdateUserDto } from './dto/update-user.dto'
@@ -14,6 +19,7 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    console.log(createUserDto)
     const emailValidator = new EmailValidator()
     if (createUserDto.name === '' || createUserDto.name === null) {
       throw new HttpException('name cannot be empty!', HttpStatus.FORBIDDEN)
@@ -142,7 +148,20 @@ export class UserService {
     }
   }
 
-  remove(id: string) {
-    return this.prisma.user.delete({ where: { id: id } })
+  async remove(id: string) {
+    if (id === '' || id === null) {
+      throw new HttpException('id cannot be null', HttpStatus.BAD_GATEWAY)
+    }
+    try {
+      const result = await this.prisma.user.delete({ where: { id: id } })
+      console.log(result)
+      return result
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException(error.meta.cause)
+      } else {
+        throw new Error(error)
+      }
+    }
   }
 }
