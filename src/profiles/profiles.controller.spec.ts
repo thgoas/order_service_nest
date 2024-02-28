@@ -4,6 +4,7 @@ import { ProfilesService } from './profiles.service'
 import { CommonModule } from '../common/common.module'
 import { fakeProfiles } from './mock_data/fakeProfiles'
 import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
 
 describe('ProfilesController', () => {
   let controller: ProfilesController
@@ -13,7 +14,7 @@ describe('ProfilesController', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule],
       controllers: [ProfilesController],
-      providers: [ProfilesService],
+      providers: [ProfilesService, JwtService],
     }).compile()
 
     controller = module.get<ProfilesController>(ProfilesController)
@@ -49,7 +50,6 @@ describe('ProfilesController', () => {
         updated_at: new Date(),
       }
 
-      // Mockando o método create do serviço para retornar um perfil criado
       jest
         .spyOn(profilesServiceMock, 'create')
         .mockResolvedValueOnce(createdProfile)
@@ -68,19 +68,16 @@ describe('ProfilesController', () => {
         description: 'Test Description',
       }
 
-      // Mockando o método create do serviço para lançar uma exceção
       jest
         .spyOn(profilesServiceMock, 'create')
         .mockRejectedValueOnce(
           new HttpException('cannot be empty!', HttpStatus.FORBIDDEN),
         )
 
-      // Chama o método create do controller e espera que ele lance uma exceção
       await expect(controller.create(createProfileDto)).rejects.toThrowError(
         new HttpException('cannot be empty!', HttpStatus.FORBIDDEN),
       )
 
-      // Verifica se o método create do serviço foi chamado corretamente
       expect(profilesServiceMock.create).toHaveBeenCalledWith(createProfileDto)
     })
 
