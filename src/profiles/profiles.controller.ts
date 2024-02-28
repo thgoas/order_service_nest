@@ -10,18 +10,21 @@ import {
 } from '@nestjs/common'
 import { ProfilesService } from './profiles.service'
 import { Prisma } from '@prisma/client'
-import { AuthGuard } from 'src/auth/auth.guards'
+import { AuthGuard } from '../auth/auth.guards'
+import { RolesGuard } from 'src/roles.guards'
+import { Roles } from 'src/decorators/roles.decorator'
+import { Role } from 'src/enums/role.enum'
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RolesGuard)
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
-
+  @Roles(Role.Master)
   @Post()
   create(@Body() createProfileDto: Prisma.ProfileCreateInput) {
     return this.profilesService.create(createProfileDto)
   }
-
+  @Roles(Role.Master, Role.Admin, Role.Common)
   @Get()
   findAll() {
     return this.profilesService.findAll()

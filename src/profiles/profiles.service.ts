@@ -67,7 +67,6 @@ export class ProfilesService {
         },
       })
     } catch (error) {
-      console.error('Update Error', error)
       throw new NotFoundException(error.meta.cause)
     }
   }
