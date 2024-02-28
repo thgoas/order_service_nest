@@ -4,6 +4,8 @@ import { CommonModule } from '../common/common.module'
 import { PrismaService } from '../common/prisma/prisma.service'
 import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common'
 import { fakeProfiles } from './mock_data/fakeProfiles'
+import { UserService } from '../user/user.service'
+import { MailingService } from '../email/mailing.service'
 
 describe('ProfilesService', () => {
   let service: ProfilesService
@@ -11,7 +13,7 @@ describe('ProfilesService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule],
-      providers: [ProfilesService, PrismaService],
+      providers: [ProfilesService, PrismaService, UserService, MailingService],
     }).compile()
 
     service = module.get<ProfilesService>(ProfilesService)

@@ -9,7 +9,6 @@ import { jwtConstants } from './auth/constants'
 import { Request } from 'express'
 import { Reflector } from '@nestjs/core'
 import { UserService } from './user/user.service'
-import { ProfilesService } from './profiles/profiles.service'
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -17,7 +16,6 @@ export class RolesGuard implements CanActivate {
     private reflector: Reflector,
     private usersService: UserService,
     private jwtService: JwtService,
-    private profileService: ProfilesService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
