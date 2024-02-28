@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { PrismaService } from '../common/prisma/prisma.service'
-import { CreateUserDto } from './dto/create-user-dto'
+import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { PasswordHasher } from '../utils/password-hasher'
 import { MailingService } from '../email/mailing.service'

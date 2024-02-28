@@ -9,7 +9,7 @@ import {
   HttpStatus,
   NotFoundException,
 } from '@nestjs/common'
-import { CreateUserDto } from './dto/create-user-dto'
+import { CreateUserDto } from './dto/create-user.dto'
 import { PasswordHasher } from '../utils/password-hasher'
 import { MailingService } from '../email/mailing.service'
 import { UpdateUserDto } from './dto/update-user.dto'
