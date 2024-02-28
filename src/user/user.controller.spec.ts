@@ -11,6 +11,13 @@ import { UpdateUserDto } from './dto/update-user.dto'
 import { ForbiddenException } from '@nestjs/common'
 import { fakeUsers } from './dataMock/fakeUsers'
 
+const profile = {
+  id: '1',
+  name: 'profile',
+  description: 'profile',
+  updated_at: new Date('2022-01-01'),
+  created_at: new Date('2022-01-01'),
+}
 describe('UserController', () => {
   let controller: UserController
   let userService: UserService
@@ -77,11 +84,19 @@ describe('UserController', () => {
           },
         },
       }
-      jest.spyOn(userService, 'update').mockResolvedValueOnce(fakeUsers[0])
+      jest.spyOn(userService, 'update').mockResolvedValueOnce({
+        ...fakeUsers[0],
+        company: [],
+        profile,
+      })
 
       const result = await controller.update('2', updateUserDto, req)
 
-      expect(result).toEqual(fakeUsers[0])
+      expect(result).toEqual({
+        ...fakeUsers[0],
+        company: [],
+        profile,
+      })
     })
     it('must be able to edit all users with master profile', async () => {
       const updateUserDto: UpdateUserDto = {
@@ -95,11 +110,17 @@ describe('UserController', () => {
           },
         },
       }
-      jest.spyOn(userService, 'update').mockResolvedValueOnce(fakeUsers[0])
+      jest
+        .spyOn(userService, 'update')
+        .mockResolvedValueOnce({ ...fakeUsers[0], profile, company: [] })
 
       const result = await controller.update('2', updateUserDto, req)
 
-      expect(result).toEqual(fakeUsers[0])
+      expect(result).toEqual({
+        ...fakeUsers[0],
+        company: [],
+        profile,
+      })
     })
     it('must be able to edit all users with admin profile', async () => {
       const updateUserDto: UpdateUserDto = {
@@ -113,11 +134,17 @@ describe('UserController', () => {
           },
         },
       }
-      jest.spyOn(userService, 'update').mockResolvedValueOnce(fakeUsers[0])
+      jest
+        .spyOn(userService, 'update')
+        .mockResolvedValueOnce({ ...fakeUsers[0], profile, company: [] })
 
       const result = await controller.update('2', updateUserDto, req)
 
-      expect(result).toEqual(fakeUsers[0])
+      expect(result).toEqual({
+        ...fakeUsers[0],
+        company: [],
+        profile,
+      })
     })
   })
 })
