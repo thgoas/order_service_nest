@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -7,9 +9,9 @@ import {
 import { PrismaService } from '../common/prisma/prisma.service'
 import { CreateUserDto } from './dto/create-user-dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { EmailValidator } from '../utils/email-validator'
 import { PasswordHasher } from '../utils/password-hasher'
 import { MailingService } from '../email/mailing.service'
+import { userProfile } from './entities/user_profile.entity'
 
 @Injectable()
 export class UserService {
@@ -18,108 +20,232 @@ export class UserService {
     private readonly mailingService: MailingService,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
-    console.log(createUserDto)
-    const emailValidator = new EmailValidator()
-    if (createUserDto.name === '' || createUserDto.name === null) {
-      throw new HttpException('name cannot be empty!', HttpStatus.FORBIDDEN)
-    }
-    if (createUserDto.email === '' || createUserDto.email === null) {
-      throw new HttpException('email cannot be empty!', HttpStatus.FORBIDDEN)
+  async create(createUserDto: CreateUserDto, user: userProfile) {
+    const userCompaniesIds = createUserDto.companies_ids
+    delete createUserDto.companies_ids
+    if (user.profile.name === 'admin') {
+      const result = await this.prisma.company.findMany({
+        where: {
+          user: {
+            some: {
+              id: user.id,
+            },
+          },
+        },
+      })
+      const companies = []
+      for (const id of userCompaniesIds) {
+        const findResult = result.find((f) => f.id === id)
+        if (findResult) {
+          companies.push(findResult)
+        }
+      }
+
+      if (userCompaniesIds.length !== companies.length)
+        throw new ForbiddenException(
+          'You are not authorized to access this feature',
+        )
     }
 
-    if (!emailValidator.validate(createUserDto.email)) {
-      throw new HttpException('Invalid Email!', HttpStatus.FORBIDDEN)
-    }
-
-    if (createUserDto.password === '' || createUserDto.password === null) {
-      throw new HttpException('password cannot be empty!', HttpStatus.FORBIDDEN)
-    }
-
-    if (createUserDto.password.length < 6) {
-      throw new HttpException(
-        'Password must be greater than or equal to 6 characters',
-        HttpStatus.FORBIDDEN,
-      )
-    }
-
-    if (createUserDto.profile_id === '' || createUserDto.profile_id === null) {
-      throw new HttpException(
-        'profile_id cannot be empty!',
-        HttpStatus.FORBIDDEN,
+    if (createUserDto.password !== createUserDto.passwordConfirmation) {
+      throw new BadRequestException(
+        'passwords and password confirmation do not match',
       )
     }
 
     const passwordHash = await PasswordHasher.hashPassword(
       createUserDto.password,
     )
+    delete createUserDto.passwordConfirmation
+    const connect = []
+    for (const id of userCompaniesIds) {
+      connect.push({ id: id })
+    }
     try {
       const result = await this.prisma.user.create({
         data: {
           ...createUserDto,
           password: passwordHash,
+          company: {
+            connect: connect,
+          },
+        },
+        include: {
+          profile: true,
+          company: true,
         },
       })
-      await this.mailingService.sendUserConfirmation(result, '123456')
+      // await this.mailingService.sendUserConfirmation(result, '123456')
+      delete result.password
       return result
     } catch (error) {
-      if (error.code && error.meta) {
-        throw new HttpException(error.meta.field_name, HttpStatus.BAD_GATEWAY)
+      console.log(error)
+      if (error.code === 'P2002') {
+        throw new HttpException('E-mail already exists', HttpStatus.BAD_GATEWAY)
+      } else if (error.code && error.meta) {
+        throw new HttpException(
+          { ...error.meta } + error.code,
+          HttpStatus.BAD_GATEWAY,
+        )
       } else {
         throw new Error(error)
       }
     }
   }
 
-  findAll() {
-    return this.prisma.user.findMany()
+  async findAll(user: any) {
+    if (user.profile.name === 'admin') {
+      const result = await this.prisma.company.findMany({
+        where: {
+          user: {
+            some: {
+              id: user.id,
+            },
+          },
+        },
+      })
+
+      const resultUser = await this.prisma.user.findMany({
+        where: {
+          company: {
+            some: {
+              id: {
+                in: result.map((r) => r.id),
+              },
+            },
+          },
+        },
+        include: {
+          company: true,
+          profile: true,
+        },
+      })
+      return resultUser.map((r) => {
+        delete r.password
+        return {
+          ...r,
+        }
+      })
+    }
+    const result = await this.prisma.user.findMany({
+      include: {
+        company: true,
+        profile: true,
+      },
+    })
+    return result.map((r) => {
+      delete r.password
+      return {
+        ...r,
+      }
+    })
   }
 
-  findOne(id: string) {
-    return this.prisma.user.findUnique({
+  async findOne(id: string, user) {
+    if (user.profile.name === 'admin') {
+      const result = await this.prisma.company.findMany({
+        where: {
+          user: {
+            some: {
+              id: user.id,
+            },
+          },
+        },
+      })
+
+      const resultUser = await this.prisma.user.findUnique({
+        where: {
+          id: id,
+          company: {
+            some: {
+              id: {
+                in: result.map((r) => r.id),
+              },
+            },
+          },
+        },
+        include: {
+          company: true,
+          profile: true,
+        },
+      })
+      delete resultUser.password
+      return resultUser
+    }
+    const result = await this.prisma.user.findUnique({
       where: {
         id: id,
       },
-    })
-  }
-
-  async findOneLogin(email: string) {
-    return await this.prisma.user.findUnique({
-      where: {
-        email: email,
+      include: {
+        company: true,
+        profile: true,
       },
     })
+    delete result.password
+    return result
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    console.log(updateUserDto)
-    // const passwordHash = await PasswordHasher.hashPassword(
-    //   createUserDto.password,
-    // );
-    if (updateUserDto.name === '' || updateUserDto.name === null) {
-      throw new HttpException('Invalid Name!', HttpStatus.FORBIDDEN)
+  async findOneComplete(id: string, email: string) {
+    if (id) {
+      return await this.prisma.user.findUnique({
+        where: {
+          id: id,
+        },
+        include: {
+          profile: true,
+          company: true,
+        },
+      })
+    } else {
+      return await this.prisma.user.findUnique({
+        where: {
+          email: email,
+        },
+        include: {
+          profile: true,
+          company: true,
+        },
+      })
     }
+  }
 
-    if (updateUserDto.email === '' || updateUserDto.email === null) {
-      throw new HttpException('Invalid Email!', HttpStatus.FORBIDDEN)
+  async update(id: string, updateUserDto: UpdateUserDto, user: userProfile) {
+    let userCompaniesIds = updateUserDto.companies_ids
+    delete updateUserDto.companies_ids
+    if (user.profile.name === 'common') {
+      delete updateUserDto.profile_id
+      delete updateUserDto.status
+      userCompaniesIds = []
     }
-
-    if (updateUserDto.password === '' || updateUserDto.password === null) {
-      throw new HttpException('password cannot be empty!', HttpStatus.FORBIDDEN)
+    if (user.profile.name === 'admin') {
+      const result = await this.prisma.company.findMany({
+        where: {
+          user: {
+            some: {
+              id: user.id,
+            },
+          },
+        },
+      })
+      const companies = []
+      for (const id of userCompaniesIds) {
+        const findResult = result.find((f) => f.id === id)
+        if (findResult) {
+          companies.push(findResult)
+        }
+      }
+      console.log(companies)
+      if (userCompaniesIds.length !== companies.length)
+        throw new ForbiddenException(
+          'You are not authorized to access this feature',
+        )
     }
-
-    if (updateUserDto.profile_id === '' || updateUserDto.profile_id === null) {
-      throw new HttpException(
-        'profile_id cannot be empty!',
-        HttpStatus.FORBIDDEN,
-      )
-    }
-
-    if (updateUserDto.password && updateUserDto.password.length < 6) {
-      throw new HttpException(
-        'Password must be greater than or equal to 6 characters',
-        HttpStatus.FORBIDDEN,
+    if (
+      updateUserDto.password &&
+      updateUserDto.password !== updateUserDto.passwordConfirmation
+    ) {
+      throw new BadRequestException(
+        'passwords and password confirmation do not match',
       )
     }
 
@@ -127,8 +253,16 @@ export class UserService {
       updateUserDto.password,
     )
 
+    const connect = []
+    for (const id of userCompaniesIds) {
+      connect.push({ id: id })
+    }
+    console.log('connect', connect)
+    delete updateUserDto.email
+    delete updateUserDto.passwordConfirmation
+
     try {
-      return await this.prisma.user.update({
+      const result = await this.prisma.user.update({
         where: {
           id: id,
         },
@@ -136,25 +270,49 @@ export class UserService {
           ...updateUserDto,
           updated_at: new Date(),
           password: passwordHash,
+          company: {
+            set: [],
+            connect: connect,
+          },
+        },
+        include: {
+          profile: true,
+          company: true,
         },
       })
+      delete result.password
+      return result
     } catch (error) {
-      console.error(error)
       if (error.code && error.meta) {
-        throw new HttpException(error.meta.field_name, HttpStatus.BAD_GATEWAY)
+        throw new HttpException(error.meta, HttpStatus.BAD_GATEWAY)
       } else {
         throw new Error(error)
       }
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string, user: any) {
+    if (user.profile.name === 'admin') {
+      const userDelete = await this.findOneComplete(id, null)
+      console.log('userDelete', userDelete)
+      const deleted = []
+      for (const i in userDelete.company) {
+        const find = user.company.find((f) => f.id === userDelete.company[i].id)
+        find ? deleted.push(find) : null
+      }
+      if (deleted.length === 0)
+        throw new ForbiddenException(
+          'You are not authorized to access this feature',
+        )
+      console.log('deleted', deleted)
+    }
+
     if (id === '' || id === null) {
       throw new HttpException('id cannot be null', HttpStatus.BAD_GATEWAY)
     }
     try {
       const result = await this.prisma.user.delete({ where: { id: id } })
-      console.log(result)
+
       return result
     } catch (error) {
       if (error.code === 'P2025') {
