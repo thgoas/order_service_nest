@@ -5,6 +5,9 @@ import { CommonModule } from '../common/common.module'
 import { fakeProfiles } from './mock_data/fakeProfiles'
 import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
+import { RolesGuard } from '../roles.guards'
+import { UserService } from '../user/user.service'
+import { MailingService } from '../email/mailing.service'
 
 describe('ProfilesController', () => {
   let controller: ProfilesController
@@ -14,7 +17,13 @@ describe('ProfilesController', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule],
       controllers: [ProfilesController],
-      providers: [ProfilesService, JwtService],
+      providers: [
+        ProfilesService,
+        JwtService,
+        RolesGuard,
+        UserService,
+        MailingService,
+      ],
     }).compile()
 
     controller = module.get<ProfilesController>(ProfilesController)

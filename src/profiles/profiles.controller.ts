@@ -7,13 +7,15 @@ import {
   Param,
   Delete,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common'
 import { ProfilesService } from './profiles.service'
-import { Prisma } from '@prisma/client'
 import { AuthGuard } from '../auth/auth.guards'
 import { RolesGuard } from '../roles.guards'
 import { Roles } from '../decorators/roles.decorator'
 import { Role } from '../enums/role.enum'
+import { CreateProfileDto } from './dto/create-profile.dto'
+import { UpdateProfileDto } from './dto/update-profile.dto'
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('profiles')
@@ -22,7 +24,7 @@ export class ProfilesController {
 
   @Post()
   @Roles(Role.Master)
-  create(@Body() createProfileDto: Prisma.ProfileCreateInput) {
+  create(@Body(ValidationPipe) createProfileDto: CreateProfileDto) {
     return this.profilesService.create(createProfileDto)
   }
 
@@ -42,7 +44,7 @@ export class ProfilesController {
   @Roles(Role.Master)
   update(
     @Param('id') id: string,
-    @Body() updateProfileDto: Prisma.ProfileUpdateInput,
+    @Body(ValidationPipe) updateProfileDto: UpdateProfileDto,
   ) {
     return this.profilesService.update(id, updateProfileDto)
   }
