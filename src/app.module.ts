@@ -7,10 +7,16 @@ import { ProfilesModule } from './profiles/profiles.module'
 import { PrismaService } from './common/prisma/prisma.service'
 import { MailingService } from './email/mailing.service'
 import { AuthModule } from './auth/auth.module'
-import { CompaniesModule } from './companies/companies.module';
+import { CompaniesModule } from './companies/companies.module'
 
 @Module({
-  imports: [UserModule, CommonModule, ProfilesModule, AuthModule, CompaniesModule],
+  imports: [
+    UserModule,
+    CommonModule,
+    ProfilesModule,
+    AuthModule,
+    CompaniesModule,
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService, MailingService],
 })
