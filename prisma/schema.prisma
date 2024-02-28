@@ -22,7 +22,19 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime?
   history_all HistoryAll[]
+  company Company[]
   @@map("users")
+}
+
+model Company {
+  id String @id @default(cuid())
+  cin String @unique
+  name String
+  fantasy String
+  created_at DateTime @default(now())
+  updated_at DateTime?
+  user User[]
+  @@map("companies")
 }
 
 model Profile {
