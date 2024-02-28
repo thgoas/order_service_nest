@@ -1,29 +1,51 @@
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  Length,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator'
+
 export class CreateUserDto {
-  readonly id?: string
-  readonly name: string
-  readonly email: string
-  readonly password: string
-  readonly status?: boolean
-  readonly profile_id: string
-  readonly created_at?: Date
-  readonly updated_at?: Date
-  constructor(
-    id: string,
-    name: string,
-    email: string,
-    password: string,
-    status: boolean,
-    profile_id: string,
-    created_at: Date,
-    updated_at: Date,
-  ) {
-    this.id = id
-    this.name = name
-    this.email = email
-    this.password = password
-    this.status = status
-    this.profile_id = profile_id
-    this.created_at = created_at
-    this.updated_at = updated_at
-  }
+  @IsNotEmpty()
+  @Length(5, 200)
+  name: string
+
+  @IsNotEmpty()
+  @IsEmail()
+  @MaxLength(200)
+  email: string
+
+  @IsNotEmpty()
+  @MinLength(6)
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    message:
+      'The password must contain at least one uppercase letter, one lowercase letter, one number or one symbol',
+  })
+  password: string
+
+  @IsNotEmpty()
+  @MinLength(6)
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    message:
+      'The password must contain at least one uppercase letter, one lowercase letter, one number or one symbol',
+  })
+  passwordConfirmation: string
+
+  @IsOptional()
+  status?: boolean
+
+  @IsNotEmpty()
+  profile_id: string
+
+  @IsNotEmpty()
+  companies_ids: string[]
+
+  @IsOptional()
+  created_at?: Date
+
+  @IsOptional()
+  updated_at?: Date
 }
