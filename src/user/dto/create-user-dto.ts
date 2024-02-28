@@ -1,7 +1,11 @@
 import {
+  IsArray,
+  IsBoolean,
+  IsDate,
   IsEmail,
   IsNotEmpty,
   IsOptional,
+  IsString,
   Length,
   Matches,
   MaxLength,
@@ -11,6 +15,7 @@ import {
 export class CreateUserDto {
   @IsNotEmpty()
   @Length(5, 200)
+  @IsString()
   name: string
 
   @IsNotEmpty()
@@ -35,17 +40,22 @@ export class CreateUserDto {
   passwordConfirmation: string
 
   @IsOptional()
+  @IsBoolean()
   status?: boolean
 
   @IsNotEmpty()
+  @IsString()
   profile_id: string
 
-  @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
   companies_ids: string[]
 
   @IsOptional()
+  @IsDate()
   created_at?: Date
 
   @IsOptional()
+  @IsDate()
   updated_at?: Date
 }
