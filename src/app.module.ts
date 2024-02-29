@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
 import { UserModule } from './user/user.module'
 import { CommonModule } from './common/common.module'
 import { ProfilesModule } from './profiles/profiles.module'
@@ -17,7 +15,7 @@ import { CompaniesModule } from './companies/companies.module'
     AuthModule,
     CompaniesModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, PrismaService, MailingService],
+
+  providers: [PrismaService, MailingService],
 })
 export class AppModule {}
