@@ -79,7 +79,6 @@ export class UserService {
       delete result.password
       return result
     } catch (error) {
-      console.log(error)
       if (error.code === 'P2002') {
         throw new HttpException('E-mail already exists', HttpStatus.BAD_GATEWAY)
       } else if (error.code && error.meta) {
@@ -234,7 +233,6 @@ export class UserService {
           companies.push(findResult)
         }
       }
-      console.log(companies)
       if (userCompaniesIds.length !== companies.length)
         throw new ForbiddenException(
           'You are not authorized to access this feature',
@@ -257,7 +255,6 @@ export class UserService {
     for (const id of userCompaniesIds) {
       connect.push({ id: id })
     }
-    console.log('connect', connect)
     delete updateUserDto.email
     delete updateUserDto.passwordConfirmation
 
@@ -294,7 +291,6 @@ export class UserService {
   async remove(id: string, user: any) {
     if (user.profile.name === 'admin') {
       const userDelete = await this.findOneComplete(id, null)
-      console.log('userDelete', userDelete)
       const deleted = []
       for (const i in userDelete.company) {
         const find = user.company.find((f) => f.id === userDelete.company[i].id)
@@ -304,7 +300,6 @@ export class UserService {
         throw new ForbiddenException(
           'You are not authorized to access this feature',
         )
-      console.log('deleted', deleted)
     }
 
     if (id === '' || id === null) {

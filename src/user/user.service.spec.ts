@@ -509,7 +509,6 @@ describe('UserService', () => {
       try {
         await service.create(createUserDto, userProfile)
       } catch (error) {
-        console.log(error)
         expect(error).toBeInstanceOf(HttpException)
         expect(error.getStatus()).toEqual(HttpStatus.BAD_GATEWAY)
       }
@@ -577,7 +576,6 @@ describe('UserService', () => {
         .spyOn(PasswordHasher, 'hashPassword')
         .mockResolvedValue('hashedpassword')
       const result = await service.update('1', updateUserDto, userRequest)
-      console.log(result)
       expect(result).toEqual(returnUser)
       expect(service['prisma'].user.update).toHaveBeenCalledTimes(1)
       expect(service['prisma'].user.update).toHaveBeenCalledWith({

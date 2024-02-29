@@ -40,7 +40,7 @@ export class RolesGuard implements CanActivate {
         profile: user.profile,
         company: user.company,
       }
-      console.log(request['userProfile'])
+
       if (total_roles.length >= 1) {
         return true
       } else {

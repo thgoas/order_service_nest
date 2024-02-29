@@ -12,12 +12,10 @@ export class AuthService {
 
   async signIn(email: string, pass: string): Promise<any> {
     const user = await this.userService.findOneComplete(null, email)
-    console.log(user)
     const passwordVerify = await PasswordVerifier.comparePassword(
       pass,
       user.password,
     )
-    console.log(passwordVerify)
     if (!passwordVerify) {
       throw new UnauthorizedException()
     }
