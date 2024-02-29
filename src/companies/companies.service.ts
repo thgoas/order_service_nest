@@ -1,26 +1,120 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCompanyDto } from './dto/create-company.dto';
-import { UpdateCompanyDto } from './dto/update-company.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { CreateCompanyDto } from './dto/create-company.dto'
+import { UpdateCompanyDto } from './dto/update-company.dto'
+import { PrismaService } from '../common/prisma/prisma.service'
 
 @Injectable()
 export class CompaniesService {
-  create(createCompanyDto: CreateCompanyDto) {
-    return 'This action adds a new company';
+  constructor(private readonly prisma: PrismaService) {}
+  async create(createCompanyDto: CreateCompanyDto) {
+    try {
+      return await this.prisma.company.create({
+        data: {
+          ...createCompanyDto,
+        },
+      })
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new HttpException('CIN already exists', HttpStatus.BAD_GATEWAY)
+      } else if (error.meta) {
+        throw new HttpException(error.meta, HttpStatus.BAD_GATEWAY)
+      }
+
+      throw new Error(error)
+    }
   }
 
-  findAll() {
-    return `This action returns all companies`;
+  async findAll() {
+    try {
+      return await this.prisma.company.findMany({
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      })
+    } catch (error) {
+      if (error.meta) {
+        throw new HttpException(error.meta, HttpStatus.BAD_GATEWAY)
+      }
+
+      throw new Error(error)
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} company`;
+  async findOne(id: string) {
+    try {
+      return await this.prisma.company.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      })
+    } catch (error) {
+      if (error.meta) {
+        throw new HttpException(error.meta, HttpStatus.BAD_GATEWAY)
+      }
+
+      throw new Error(error)
+    }
   }
 
-  update(id: number, updateCompanyDto: UpdateCompanyDto) {
-    return `This action updates a #${id} company`;
+  async update(id: string, updateCompanyDto: UpdateCompanyDto) {
+    try {
+      return await this.prisma.company.update({
+        where: { id },
+        data: updateCompanyDto,
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+            },
+          },
+        },
+      })
+    } catch (error) {
+      if (error.meta) {
+        throw new HttpException(error.meta, HttpStatus.BAD_GATEWAY)
+      }
+
+      throw new Error(error)
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} company`;
+  async remove(id: string) {
+    try {
+      return await this.prisma.company.delete({
+        where: { id },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+            },
+          },
+        },
+      })
+    } catch (error) {
+      if (error.meta) {
+        throw new HttpException(error.meta, HttpStatus.BAD_GATEWAY)
+      }
+
+      throw new Error(error)
+    }
   }
 }
