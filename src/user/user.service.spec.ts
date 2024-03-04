@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { UserService } from './user.service'
-import { CommonModule } from '../common/common.module'
 import { PrismaService } from '../common/prisma/prisma.service'
 import { fakeUsers } from './dataMock/fakeUsers'
 import {
@@ -14,15 +13,19 @@ import { PasswordHasher } from '../utils/password-hasher'
 import { MailingService } from '../email/mailing.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { userProfile } from './entities/user_profile.entity'
+import { BullModule, getQueueToken } from '@nestjs/bull'
 
 describe('UserService', () => {
   let service: UserService
   let mailingService: MailingService
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [CommonModule],
+      imports: [BullModule.registerQueue({ name: 'email' })],
       providers: [UserService, PrismaService, MailingService],
-    }).compile()
+    })
+      .overrideProvider(getQueueToken('email'))
+      .useValue({})
+      .compile()
 
     service = module.get<UserService>(UserService)
     mailingService = module.get<MailingService>(MailingService)
@@ -234,12 +237,9 @@ describe('UserService', () => {
         status: true,
         updated_at: null,
       }
-      mailingService['transporter'].sendMail = jest.fn((mailOptions) => {
-        expect(mailOptions.to).toEqual(fakeUsers[0].email)
-        expect(mailOptions.subject).toEqual('Welcome user! Confirm your Email')
 
-        return Promise.resolve()
-      })
+      jest.spyOn(mailingService, 'sendUserWelcome').mockResolvedValue()
+
       jest
         .spyOn(service['prisma'].company, 'findMany')
         .mockResolvedValueOnce(companies)
@@ -318,12 +318,7 @@ describe('UserService', () => {
         status: true,
         updated_at: null,
       }
-      mailingService['transporter'].sendMail = jest.fn((mailOptions) => {
-        expect(mailOptions.to).toEqual(fakeUsers[0].email)
-        expect(mailOptions.subject).toEqual('Welcome user! Confirm your Email')
-
-        return Promise.resolve()
-      })
+      jest.spyOn(mailingService, 'sendUserWelcome').mockResolvedValue()
       jest
         .spyOn(service['prisma'].company, 'findMany')
         .mockResolvedValueOnce(companies)
@@ -370,12 +365,8 @@ describe('UserService', () => {
         status: true,
         updated_at: null,
       }
-      mailingService['transporter'].sendMail = jest.fn((mailOptions) => {
-        expect(mailOptions.to).toEqual(fakeUsers[0].email)
-        expect(mailOptions.subject).toEqual('Welcome user! Confirm your Email')
 
-        return Promise.resolve()
-      })
+      jest.spyOn(mailingService, 'sendUserWelcome').mockResolvedValue()
 
       jest.spyOn(service['prisma'].user, 'create').mockResolvedValue(returnUser)
 

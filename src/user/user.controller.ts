@@ -30,7 +30,6 @@ export class UserController {
     @Body(ValidationPipe) createUserDto: CreateUserDto,
     @Request() req: any,
   ) {
-    console.log(createUserDto)
     const user = req.userProfile
     return await this.userService.create(createUserDto, user)
   }

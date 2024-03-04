@@ -75,7 +75,7 @@ export class UserService {
           company: true,
         },
       })
-      // await this.mailingService.sendUserConfirmation(result, '123456')
+      await this.mailingService.sendUserWelcome(result, createUserDto.password)
       delete result.password
       return result
     } catch (error) {
