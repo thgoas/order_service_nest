@@ -10,6 +10,7 @@ export const fakeUsers: User[] = [
     profile_id: '2',
     created_at: new Date(2024, 2, 1),
     updated_at: new Date(2024, 2, 1),
+    token: null,
   },
   {
     id: '2',
@@ -20,6 +21,7 @@ export const fakeUsers: User[] = [
     profile_id: '1',
     created_at: new Date(2024, 2, 1),
     updated_at: new Date(2024, 2, 1),
+    token: null,
   },
   {
     id: '3',
@@ -30,5 +32,6 @@ export const fakeUsers: User[] = [
     profile_id: '1',
     created_at: new Date(2024, 2, 1),
     updated_at: new Date(2024, 2, 1),
+    token: null,
   },
 ]

@@ -7,4 +7,5 @@ export class User {
   profile_id: string
   created_at: Date
   updated_at: Date
+  token: string
 }

@@ -236,6 +236,7 @@ describe('UserService', () => {
         password: 'hashedpassword',
         status: true,
         updated_at: null,
+        token: null,
       }
 
       jest.spyOn(mailingService, 'sendUserWelcome').mockResolvedValue()
@@ -317,6 +318,7 @@ describe('UserService', () => {
         password: 'hashedpassword',
         status: true,
         updated_at: null,
+        token: null,
       }
       jest.spyOn(mailingService, 'sendUserWelcome').mockResolvedValue()
       jest
@@ -364,6 +366,7 @@ describe('UserService', () => {
         password: 'hashedpassword',
         status: true,
         updated_at: null,
+        token: null,
       }
 
       jest.spyOn(mailingService, 'sendUserWelcome').mockResolvedValue()
@@ -558,6 +561,7 @@ describe('UserService', () => {
         password: 'hashedpassword',
         status: true,
         updated_at: expect.any(Date),
+        token: null,
       }
       jest
         .spyOn(service['prisma'].company, 'findMany')
@@ -574,6 +578,84 @@ describe('UserService', () => {
         data: {
           ...updateUserDto,
           password: 'hashedpassword',
+          updated_at: expect.any(Date),
+          company: {
+            set: [],
+            connect: [{ id: '1' }, { id: '2' }],
+          },
+        },
+        include: {
+          profile: true,
+          company: true,
+        },
+      })
+    })
+
+    it('should return the edited user for user request admin without password', async () => {
+      const updateUserDto: UpdateUserDto = {
+        name: 'user 1 edited',
+        email: 'user1-edited@email.com',
+        profile_id: '1',
+        companies_ids: ['1', '2'],
+      }
+      const userRequest: userProfile = {
+        id: '2',
+        name: 'user 2',
+        email: 'user2@email.com',
+        profile: {
+          id: '1',
+          name: 'admin',
+          description: 'Administrator',
+        },
+        company: [
+          { id: '1', cin: '11111', fantasy: 'company test', name: 'company' },
+          { id: '2', cin: '11111', fantasy: 'company test', name: 'company' },
+        ],
+      }
+
+      const companies: any[] = [
+        {
+          id: '1',
+          cin: '11111',
+          fantasy: 'company test',
+          name: 'company',
+          created_at: new Date('2022-01-01'),
+          updated_at: null,
+        },
+        {
+          id: '2',
+          cin: '11111',
+          fantasy: 'company test',
+          name: 'company',
+          created_at: new Date('2022-01-01'),
+          updated_at: null,
+        },
+      ]
+      const returnUser = {
+        id: '1',
+        name: 'user 1 edited',
+        email: 'user1-edited@email.com',
+        profile_id: '1',
+        created_at: expect.any(Date),
+        password: 'hashedpassword',
+        status: true,
+        updated_at: expect.any(Date),
+        token: null,
+      }
+      jest
+        .spyOn(service['prisma'].company, 'findMany')
+        .mockResolvedValue(companies)
+      jest.spyOn(service['prisma'].user, 'update').mockResolvedValue(returnUser)
+      jest
+        .spyOn(PasswordHasher, 'hashPassword')
+        .mockResolvedValue('hashedpassword')
+      const result = await service.update('1', updateUserDto, userRequest)
+      expect(result).toEqual(returnUser)
+      expect(service['prisma'].user.update).toHaveBeenCalledTimes(1)
+      expect(service['prisma'].user.update).toHaveBeenCalledWith({
+        where: { id: '1' },
+        data: {
+          ...updateUserDto,
           updated_at: expect.any(Date),
           company: {
             set: [],
@@ -620,6 +702,7 @@ describe('UserService', () => {
         password: 'hashedpassword',
         status: true,
         updated_at: expect.any(Date),
+        token: null,
       }
       jest.spyOn(service['prisma'].user, 'update').mockResolvedValue(returnUser)
       jest
@@ -681,6 +764,7 @@ describe('UserService', () => {
         status: true,
         updated_at: expect.any(Date),
         companies_ids: ['1', '2'],
+        token: null,
       }
       jest.spyOn(service['prisma'].user, 'update').mockResolvedValue(returnUser)
       jest

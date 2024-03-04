@@ -208,6 +208,19 @@ export class UserService {
     }
   }
 
+  async updateForgotPassword(id: string, updateUserDto: UpdateUserDto) {
+    try {
+      await this.prisma.user.update({
+        where: { id },
+        data: {
+          ...updateUserDto,
+        },
+      })
+    } catch (error) {
+      throw new BadRequestException('Failed to request password reset')
+    }
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto, user: userProfile) {
     let userCompaniesIds = updateUserDto.companies_ids
     delete updateUserDto.companies_ids
@@ -216,6 +229,7 @@ export class UserService {
       delete updateUserDto.status
       userCompaniesIds = []
     }
+
     if (user.profile.name === 'admin') {
       const result = await this.prisma.company.findMany({
         where: {
@@ -247,10 +261,11 @@ export class UserService {
       )
     }
 
-    const passwordHash = await PasswordHasher.hashPassword(
-      updateUserDto.password,
-    )
+    const passwordHash = updateUserDto.password
+      ? await PasswordHasher.hashPassword(updateUserDto.password)
+      : null
 
+    passwordHash ? (updateUserDto.password = passwordHash) : null
     const connect = []
     for (const id of userCompaniesIds) {
       connect.push({ id: id })
@@ -266,7 +281,6 @@ export class UserService {
         data: {
           ...updateUserDto,
           updated_at: new Date(),
-          password: passwordHash,
           company: {
             set: [],
             connect: connect,

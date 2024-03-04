@@ -35,7 +35,7 @@ export class CreateUserDto {
   @MinLength(6)
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
     message:
-      'The password must contain at least one uppercase letter, one lowercase letter, one number or one symbol',
+      'The password confirmation must contain at least one uppercase letter, one lowercase letter, one number or one symbol',
   })
   passwordConfirmation: string
 
@@ -58,4 +58,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsDate()
   updated_at?: Date
+
+  @IsOptional()
+  @IsString()
+  token?: string
 }

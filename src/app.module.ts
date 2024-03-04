@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module'
 import { CompaniesModule } from './companies/companies.module'
 import { BullModule } from '@nestjs/bull'
 import { EmailWorker } from './email/Email-worker'
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { EmailWorker } from './email/Email-worker'
         port: Number(process.env.REDIS_PORT),
       },
     }),
+    OrderModule,
   ],
 
   providers: [PrismaService, MailingService, EmailWorker],

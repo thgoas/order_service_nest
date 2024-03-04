@@ -9,4 +9,11 @@ export class MailingService {
   async sendUserWelcome(user: any, password: string) {
     await this.emailQueue.add('sendUserWelcome', { user, password })
   }
+
+  async sendUserRecoveryPasswordLink(user: any, recoveryPasswordLink: string) {
+    await this.emailQueue.add('sendUserRecoveryPasswordLink', {
+      user,
+      recoveryPasswordLink,
+    })
+  }
 }

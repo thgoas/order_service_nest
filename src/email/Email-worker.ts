@@ -11,7 +11,7 @@ import { Job } from 'bull'
 export class EmailWorker {
   private transporter: nodemailer.Transporter
   private welcomeTemplate: handlebars.TemplateDelegate
-  private passwordResetTemplate: handlebars.TemplateDelegate
+  private forgotPasswordTemplate: handlebars.TemplateDelegate
   private groupInviteTemplate: handlebars.TemplateDelegate
 
   constructor() {
@@ -35,6 +35,7 @@ export class EmailWorker {
 
     // Load Handlebars templates
     this.welcomeTemplate = this.loadTemplate('welcome.hbs')
+    this.forgotPasswordTemplate = this.loadTemplate('forgot_password.hbs')
   }
 
   private loadTemplate(templateName: string): handlebars.TemplateDelegate {
@@ -59,6 +60,34 @@ export class EmailWorker {
       console.log('Email successfully sent to ', user.email)
     } catch (error) {
       console.error('Error sending email to ', user.email, ': ', error)
+      return false
+    }
+  }
+
+  @Process('sendUserRecoveryPasswordLink')
+  async sendUserRecoveryPasswordLink(
+    job: Job<{ user: any; recoveryPasswordLink: string }>,
+  ) {
+    const { user, recoveryPasswordLink } = job.data
+    const html = this.forgotPasswordTemplate({
+      name: user.name,
+      recoveryPassword: recoveryPasswordLink,
+    })
+
+    try {
+      await this.transporter.sendMail({
+        to: user.email,
+        subject: 'Recuperação de senha',
+        html: html,
+      })
+      console.log('Email recovery password successfully sent to ', user.email)
+    } catch (error) {
+      console.error(
+        'Error recovery password sending email to ',
+        user.email,
+        ': ',
+        error,
+      )
       return false
     }
   }
