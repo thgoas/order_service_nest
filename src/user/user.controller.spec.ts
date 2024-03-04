@@ -10,6 +10,7 @@ import { ProfilesService } from '../profiles/profiles.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { ForbiddenException } from '@nestjs/common'
 import { fakeUsers } from './dataMock/fakeUsers'
+import { BullModule, getQueueToken } from '@nestjs/bull'
 
 const profile = {
   id: '1',
@@ -23,7 +24,7 @@ describe('UserController', () => {
   let userService: UserService
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [CommonModule],
+      imports: [CommonModule, BullModule.registerQueue({ name: 'email' })],
       controllers: [UserController],
       providers: [
         UserService,
@@ -33,7 +34,10 @@ describe('UserController', () => {
         JwtService,
         ProfilesService,
       ],
-    }).compile()
+    })
+      .overrideProvider(getQueueToken('email'))
+      .useValue({})
+      .compile()
 
     controller = module.get<UserController>(UserController)
     userService = module.get<UserService>(UserService)

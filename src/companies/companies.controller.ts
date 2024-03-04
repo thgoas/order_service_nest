@@ -12,10 +12,10 @@ import {
 import { CompaniesService } from './companies.service'
 import { CreateCompanyDto } from './dto/create-company.dto'
 import { UpdateCompanyDto } from './dto/update-company.dto'
-import { AuthGuard } from 'src/auth/auth.guards'
-import { RolesGuard } from 'src/roles.guards'
-import { Roles } from 'src/decorators/roles.decorator'
-import { Role } from 'src/enums/role.enum'
+import { AuthGuard } from '../auth/auth.guards'
+import { RolesGuard } from '../roles.guards'
+import { Roles } from '../decorators/roles.decorator'
+import { Role } from '../enums/role.enum'
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('companies')

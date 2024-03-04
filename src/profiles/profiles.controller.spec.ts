@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt'
 import { RolesGuard } from '../roles.guards'
 import { UserService } from '../user/user.service'
 import { MailingService } from '../email/mailing.service'
+import { BullModule, getQueueToken } from '@nestjs/bull'
 
 describe('ProfilesController', () => {
   let controller: ProfilesController
@@ -15,7 +16,7 @@ describe('ProfilesController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [CommonModule],
+      imports: [CommonModule, BullModule.registerQueue({ name: 'email' })],
       controllers: [ProfilesController],
       providers: [
         ProfilesService,
@@ -24,7 +25,10 @@ describe('ProfilesController', () => {
         UserService,
         MailingService,
       ],
-    }).compile()
+    })
+      .overrideProvider(getQueueToken('email'))
+      .useValue({})
+      .compile()
 
     controller = module.get<ProfilesController>(ProfilesController)
     profilesServiceMock = module.get<ProfilesService>(ProfilesService)

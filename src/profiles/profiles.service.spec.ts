@@ -6,15 +6,19 @@ import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common'
 import { fakeProfiles } from './mock_data/fakeProfiles'
 import { UserService } from '../user/user.service'
 import { MailingService } from '../email/mailing.service'
+import { BullModule, getQueueToken } from '@nestjs/bull'
 
 describe('ProfilesService', () => {
   let service: ProfilesService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [CommonModule],
+      imports: [CommonModule, BullModule.registerQueue({ name: 'email' })],
       providers: [ProfilesService, PrismaService, UserService, MailingService],
-    }).compile()
+    })
+      .overrideProvider(getQueueToken('email'))
+      .useValue({})
+      .compile()
 
     service = module.get<ProfilesService>(ProfilesService)
   })

@@ -4,12 +4,14 @@ import { UserService } from '../user/user.service'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from '../common/prisma/prisma.service'
 import { MailingService } from '../email/mailing.service'
+import { BullModule, getQueueToken } from '@nestjs/bull'
 
 describe('AuthService', () => {
   let service: AuthService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [BullModule.registerQueue({ name: 'email' })],
       providers: [
         AuthService,
         UserService,
@@ -17,7 +19,10 @@ describe('AuthService', () => {
         PrismaService,
         MailingService,
       ],
-    }).compile()
+    })
+      .overrideProvider(getQueueToken('email'))
+      .useValue({})
+      .compile()
 
     service = module.get<AuthService>(AuthService)
   })
