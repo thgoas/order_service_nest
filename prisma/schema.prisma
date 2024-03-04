@@ -23,6 +23,7 @@ model User {
   updated_at DateTime?
   history_all HistoryAll[]
   company Company[]
+  token String?
   @@map("users")
 }
 
@@ -64,14 +65,16 @@ model OrderService {
   description String
   status_id String @unique
   status Status @relation(fields: [status_id], references: [id])
-  serie_number String
+  identification_number String?
+  serie_number String?
   user_id String 
   user User @relation(fields: [technician_id], references: [id])
   date_entry DateTime
-  daparture_date DateTime
+  departure_date DateTime
   technician_id String @unique
   image Image[]
   history_order_service historyOrderService []
+  email_client String
   @@map("order_services")
 }
 
