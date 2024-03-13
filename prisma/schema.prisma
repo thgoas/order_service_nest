@@ -18,12 +18,15 @@ model User {
   status Boolean @default(true)
   profile_id String 
   profile Profile @relation(fields: [profile_id], references: [id])
-  order_service OrderService?
+  order_service OrderService[]
   created_at DateTime @default(now())
   updated_at DateTime?
   history_all HistoryAll[]
   company Company[]
   token String?
+  image_url String?
+  filename String?
+  extension String?
   @@map("users")
 }
 
@@ -32,9 +35,12 @@ model Company {
   cin String @unique
   name String
   fantasy String
+  email String
   created_at DateTime @default(now())
   updated_at DateTime?
   user User[]
+  order_service OrderService[]
+  customers Customers []
   @@map("companies")
 }
 
@@ -61,27 +67,33 @@ model Permission {
 }
 
 model OrderService {
-  id String @id @default(cuid())
+  id Int @id @default(autoincrement())
   description String
-  status_id String @unique
+  status_id String 
   status Status @relation(fields: [status_id], references: [id])
   identification_number String?
   serie_number String?
   user_id String 
   user User @relation(fields: [technician_id], references: [id])
   date_entry DateTime
-  departure_date DateTime
-  technician_id String @unique
-  image Image[]
-  history_order_service historyOrderService []
-  email_client String
+  departure_date DateTime?
+  technician_id String
+  images Image[]
+  history_order_service HistoryOrderService []
+  company_id String
+  company Company @relation(fields: [company_id], references: [id])
+  customers_id String
+  customers Customers @relation(fields: [customers_id], references: [id])
+  solution String?
+  technical_accompaniments TechnicalAccompaniments[]
   @@map("order_services")
 }
 
 model Status {
   id String @id @default(cuid())
+  name String @unique
   description String
-  order_service OrderService?
+  order_service OrderService[]
   created_at DateTime @default(now())
   updated_at DateTime?
   @@map("status")
@@ -89,19 +101,20 @@ model Status {
 
 model Image {
   id String @id @default(cuid())
-  description String?
-  path String
-  order_id String 
-  order_service OrderService @relation(fields: [order_id], references: [id])
+  filename String
+  extension String
+  url String
+  order_id Int 
+  order_service OrderService @relation(fields: [order_id], references: [id], onDelete: Cascade)
   created_at DateTime @default(now())
   @@map("images")
 }
 
-model historyOrderService {
+model HistoryOrderService {
   id String @id @default(cuid())
   description String
-  order_id String
-  order_service OrderService @relation(fields: [order_id], references: [id])
+  order_id Int
+  order_service OrderService @relation(fields: [order_id], references: [id], onDelete: Cascade)
   date DateTime @default(now())
   @@map("history_order_service")
 }
@@ -112,6 +125,27 @@ model HistoryAll {
   user_id String
   user User @relation(fields: [user_id], references: [id])
   @@map("history_all")
+}
+
+model Customers {
+  id String @id @default(cuid())
+  name String
+  fantasy_name String
+  identification_number String
+  kind_of_person String
+  email String
+  company Company []
+  order_service OrderService[]
+  @@map("customers")
+}
+
+model TechnicalAccompaniments {
+  id String @id @default(cuid())
+  descritpion String
+  date DateTime @default(now())
+  order_service_id Int
+  order_service OrderService @relation(fields: [order_service_id], references: [id], onDelete: Cascade)
+  @@map("technical_accompaniments")
 }
 
 
