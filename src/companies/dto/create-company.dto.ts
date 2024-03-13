@@ -1,5 +1,6 @@
 import {
   IsDate,
+  IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -28,4 +29,8 @@ export class CreateCompanyDto {
   @IsOptional()
   @IsDate()
   updated_at?: Date
+
+  @IsNotEmpty()
+  @IsEmail()
+  email: string
 }

@@ -13,6 +13,7 @@ const fakeCompanies = [
     name: 'Fake Company',
     created_at: new Date(2022, 1, 1),
     updated_at: null,
+    email: 'test@email.com',
   },
   {
     id: '2',
@@ -21,6 +22,7 @@ const fakeCompanies = [
     name: 'Fake Company',
     created_at: new Date(2022, 1, 1),
     updated_at: null,
+    email: 'test@email.com',
   },
   {
     id: '3',
@@ -29,6 +31,7 @@ const fakeCompanies = [
     name: 'Fake Company',
     created_at: new Date(2022, 1, 1),
     updated_at: null,
+    email: 'test@email.com',
   },
 ]
 
@@ -131,6 +134,7 @@ describe('CompaniesService', () => {
         cin: '111',
         fantasy: 'Fake Company 1',
         name: 'Fake Company',
+        email: 'test@email.com',
       }
 
       jest
@@ -149,6 +153,7 @@ describe('CompaniesService', () => {
         cin: '111',
         fantasy: 'Fake Company 1',
         name: 'Fake Company',
+        email: 'test@email.com',
       }
 
       jest

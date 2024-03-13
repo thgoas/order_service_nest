@@ -63,7 +63,7 @@ export class AuthService {
       { expiresIn: '1h' },
     )
 
-    await this.userService.update(user.id, { token }, user)
+    await this.userService.update(user.id, { token }, user, null)
 
     await this.mailingService.sendUserRecoveryPasswordLink(
       user,
@@ -88,7 +88,7 @@ export class AuthService {
           throw new BadRequestException('Invalid or expired token!')
         }
         updateAuthDto.token = null
-        await this.userService.update(user.id, updateAuthDto, user)
+        await this.userService.update(user.id, updateAuthDto, user, null)
         return {
           message: 'password changed successfully',
         }

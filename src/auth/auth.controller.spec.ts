@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from '../common/prisma/prisma.service'
 import { MailingService } from '../email/mailing.service'
 import { BullModule, getQueueToken } from '@nestjs/bull'
+import { UploadsService } from '../uploads/uploads.service'
 
 describe('AuthController', () => {
   let controller: AuthController
@@ -20,6 +21,7 @@ describe('AuthController', () => {
         JwtService,
         PrismaService,
         MailingService,
+        UploadsService,
       ],
     })
       .overrideProvider(getQueueToken('email'))

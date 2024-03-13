@@ -9,6 +9,7 @@ import { RolesGuard } from '../roles.guards'
 import { UserService } from '../user/user.service'
 import { MailingService } from '../email/mailing.service'
 import { BullModule, getQueueToken } from '@nestjs/bull'
+import { UploadsService } from '../uploads/uploads.service'
 
 describe('ProfilesController', () => {
   let controller: ProfilesController
@@ -24,6 +25,7 @@ describe('ProfilesController', () => {
         RolesGuard,
         UserService,
         MailingService,
+        UploadsService,
       ],
     })
       .overrideProvider(getQueueToken('email'))

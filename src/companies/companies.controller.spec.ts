@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt'
 import { UserService } from '../user/user.service'
 import { MailingService } from '../email/mailing.service'
 import { BullModule, getQueueToken } from '@nestjs/bull'
+import { UploadsService } from '../uploads/uploads.service'
 
 describe('CompaniesController', () => {
   let controller: CompaniesController
@@ -20,6 +21,7 @@ describe('CompaniesController', () => {
         JwtService,
         UserService,
         MailingService,
+        UploadsService,
       ],
     })
       .overrideProvider(getQueueToken('email'))

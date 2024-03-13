@@ -7,6 +7,7 @@ import { fakeProfiles } from './mock_data/fakeProfiles'
 import { UserService } from '../user/user.service'
 import { MailingService } from '../email/mailing.service'
 import { BullModule, getQueueToken } from '@nestjs/bull'
+import { UploadsService } from '../uploads/uploads.service'
 
 describe('ProfilesService', () => {
   let service: ProfilesService
@@ -14,7 +15,13 @@ describe('ProfilesService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule, BullModule.registerQueue({ name: 'email' })],
-      providers: [ProfilesService, PrismaService, UserService, MailingService],
+      providers: [
+        ProfilesService,
+        PrismaService,
+        UserService,
+        MailingService,
+        UploadsService,
+      ],
     })
       .overrideProvider(getQueueToken('email'))
       .useValue({})
