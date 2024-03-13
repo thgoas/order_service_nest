@@ -21,7 +21,6 @@ model User {
   order_service OrderService[]
   created_at DateTime @default(now())
   updated_at DateTime?
-  history_all HistoryAll[]
   company Company[]
   token String?
   image_url String?
@@ -52,20 +51,9 @@ model Profile {
   created_at DateTime @default(now())
   updated_at DateTime?
   user User[]
-  Permission Permission[]
   @@map("profiles")
 }
 
-model Permission {
-  id String @id @default(cuid())
-  name String @unique
-  description String
-  created_at DateTime @default(now())
-  updated_at DateTime?
-  profile_id String
-  profile Profile @relation(fields: [profile_id], references: [id])
-  @@map("permissions")
-}
 
 model OrderService {
   id Int @id @default(autoincrement())
@@ -120,13 +108,6 @@ model HistoryOrderService {
   @@map("history_order_service")
 }
 
-model HistoryAll {
-  id String @id @default(cuid())
-  description String
-  user_id String
-  user User @relation(fields: [user_id], references: [id])
-  @@map("history_all")
-}
 
 model Customers {
   id String @id @default(cuid())
@@ -135,7 +116,8 @@ model Customers {
   identification_number String
   kind_of_person String
   email String
-  company Company []
+  company_id String
+  company Company @relation(fields: [company_id], references: [id])
   order_service OrderService[]
   @@map("customers")
 }
