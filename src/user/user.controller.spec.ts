@@ -11,6 +11,7 @@ import { UpdateUserDto } from './dto/update-user.dto'
 import { ForbiddenException } from '@nestjs/common'
 import { fakeUsers } from './dataMock/fakeUsers'
 import { BullModule, getQueueToken } from '@nestjs/bull'
+import { UploadsService } from '../uploads/uploads.service'
 
 const profile = {
   id: '1',
@@ -19,6 +20,20 @@ const profile = {
   updated_at: new Date('2022-01-01'),
   created_at: new Date('2022-01-01'),
 }
+
+const mockImages: Express.Multer.File = {
+  fieldname: 'imageField',
+  originalname: 'image1.jpg',
+  encoding: '7bit',
+  mimetype: 'image/jpeg',
+  size: 1024,
+  buffer: Buffer.from('fake-image-buffer-1'),
+  stream: null,
+  destination: '/uploads',
+  filename: 'image1.jpg',
+  path: '/uploads/image1.jpg',
+}
+
 describe('UserController', () => {
   let controller: UserController
   let userService: UserService
@@ -33,6 +48,7 @@ describe('UserController', () => {
         RolesGuard,
         JwtService,
         ProfilesService,
+        UploadsService,
       ],
     })
       .overrideProvider(getQueueToken('email'))
@@ -62,13 +78,14 @@ describe('UserController', () => {
         userProfile: {
           id: '2',
           profile: {
-            name: 'commom',
+            name: 'common',
           },
         },
+        File: mockImages,
       }
 
       try {
-        await controller.update('1', updateUserDto, req)
+        await controller.update('1', updateUserDto, req, mockImages)
       } catch (error) {
         expect(error).toBeInstanceOf(ForbiddenException)
         expect(error.message).toBe(
@@ -84,7 +101,7 @@ describe('UserController', () => {
         userProfile: {
           id: '2',
           profile: {
-            name: 'commom',
+            name: 'common',
           },
         },
       }
@@ -94,7 +111,12 @@ describe('UserController', () => {
         profile,
       })
 
-      const result = await controller.update('2', updateUserDto, req)
+      const result = await controller.update(
+        '2',
+        updateUserDto,
+        req,
+        mockImages,
+      )
 
       expect(result).toEqual({
         ...fakeUsers[0],
@@ -118,7 +140,12 @@ describe('UserController', () => {
         .spyOn(userService, 'update')
         .mockResolvedValueOnce({ ...fakeUsers[0], profile, company: [] })
 
-      const result = await controller.update('2', updateUserDto, req)
+      const result = await controller.update(
+        '2',
+        updateUserDto,
+        req,
+        mockImages,
+      )
 
       expect(result).toEqual({
         ...fakeUsers[0],
@@ -142,7 +169,12 @@ describe('UserController', () => {
         .spyOn(userService, 'update')
         .mockResolvedValueOnce({ ...fakeUsers[0], profile, company: [] })
 
-      const result = await controller.update('2', updateUserDto, req)
+      const result = await controller.update(
+        '2',
+        updateUserDto,
+        req,
+        mockImages,
+      )
 
       expect(result).toEqual({
         ...fakeUsers[0],

@@ -12,15 +12,21 @@ import { UpdateUserDto } from './dto/update-user.dto'
 import { PasswordHasher } from '../utils/password-hasher'
 import { MailingService } from '../email/mailing.service'
 import { userProfile } from './entities/user_profile.entity'
+import { UploadsService } from '../uploads/uploads.service'
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailingService: MailingService,
+    private readonly uploadService: UploadsService,
   ) {}
 
-  async create(createUserDto: CreateUserDto, user: userProfile) {
+  async create(
+    createUserDto: CreateUserDto,
+    user: userProfile,
+    image: Express.Multer.File,
+  ) {
     const userCompaniesIds = createUserDto.companies_ids
     delete createUserDto.companies_ids
     if (user.profile.name === 'admin') {
@@ -61,10 +67,18 @@ export class UserService {
     for (const id of userCompaniesIds) {
       connect.push({ id: id })
     }
+
+    const imageName = await this.uploadService.saveUserImage(image)
+
     try {
       const result = await this.prisma.user.create({
         data: {
           ...createUserDto,
+          image_url: imageName.fileName
+            ? `${process.env.IMAGES_USER_URL}/${imageName.fileName}${imageName.extension}`
+            : null,
+          filename: imageName.fileName,
+          extension: imageName.extension,
           password: passwordHash,
           company: {
             connect: connect,
@@ -79,9 +93,10 @@ export class UserService {
       delete result.password
       return result
     } catch (error) {
+      await this.uploadService.deleteUserImage(imageName)
       if (error.code === 'P2002') {
         throw new HttpException('E-mail already exists', HttpStatus.BAD_GATEWAY)
-      } else if (error.code && error.meta) {
+      } else if (error.code) {
         throw new HttpException(
           { ...error.meta } + error.code,
           HttpStatus.BAD_GATEWAY,
@@ -221,7 +236,12 @@ export class UserService {
     }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto, user: userProfile) {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    user: userProfile,
+    image: Express.Multer.File,
+  ) {
     let userCompaniesIds = updateUserDto.companies_ids
     delete updateUserDto.companies_ids
     if (user.profile.name === 'common') {
@@ -272,7 +292,7 @@ export class UserService {
     }
     delete updateUserDto.email
     delete updateUserDto.passwordConfirmation
-
+    const imageName = await this.uploadService.saveUserImage(image)
     try {
       const result = await this.prisma.user.update({
         where: {
@@ -280,6 +300,11 @@ export class UserService {
         },
         data: {
           ...updateUserDto,
+          image_url: imageName.fileName
+            ? `${process.env.IMAGES_USER_URL}/${imageName.fileName}${imageName.extension}`
+            : null,
+          filename: imageName.fileName,
+          extension: imageName.extension,
           updated_at: new Date(),
           company: {
             set: [],
@@ -294,6 +319,7 @@ export class UserService {
       delete result.password
       return result
     } catch (error) {
+      await this.uploadService.deleteUserImage(imageName)
       if (error.code && error.meta) {
         throw new HttpException(error.meta, HttpStatus.BAD_GATEWAY)
       } else {

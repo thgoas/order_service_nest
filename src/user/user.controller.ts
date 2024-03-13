@@ -10,6 +10,8 @@ import {
   ValidationPipe,
   Request,
   ForbiddenException,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common'
 import { UserService } from './user.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -18,6 +20,7 @@ import { AuthGuard } from '../auth/auth.guards'
 import { RolesGuard } from '../roles.guards'
 import { Roles } from '../decorators/roles.decorator'
 import { Role } from '../enums/role.enum'
+import { FileInterceptor } from '@nestjs/platform-express'
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('user')
@@ -26,12 +29,15 @@ export class UserController {
 
   @Post()
   @Roles(Role.Master, Role.Admin)
+  @UseInterceptors(FileInterceptor('image'))
   async create(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
-    @Request() req: any,
+    @Request()
+    req: any,
+    @UploadedFile() image: Express.Multer.File,
   ) {
     const user = req.userProfile
-    return await this.userService.create(createUserDto, user)
+    return await this.userService.create(createUserDto, user, image)
   }
 
   @Get()
@@ -50,11 +56,14 @@ export class UserController {
 
   @Patch(':id')
   @Roles(Role.Common, Role.Admin, Role.Master)
+  @UseInterceptors(FileInterceptor('image'))
   update(
     @Param('id') id: string,
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
     @Request() req: any,
+    @UploadedFile() image: Express.Multer.File,
   ) {
+    console.log(req)
     const user = req.userProfile
     if (
       user.profile.name !== Role.Admin &&
@@ -65,7 +74,7 @@ export class UserController {
         'You are not authorized to access this feature',
       )
     }
-    return this.userService.update(id, updateUserDto, user)
+    return this.userService.update(id, updateUserDto, user, image)
   }
 
   @Delete(':id')

@@ -8,4 +8,7 @@ export class User {
   created_at: Date
   updated_at: Date
   token: string
+  image_url: string
+  filename: string
+  extension: string
 }

@@ -14,6 +14,20 @@ import { MailingService } from '../email/mailing.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { userProfile } from './entities/user_profile.entity'
 import { BullModule, getQueueToken } from '@nestjs/bull'
+import { UploadsService } from '../uploads/uploads.service'
+
+const mockImages: Express.Multer.File = {
+  fieldname: 'imageField',
+  originalname: 'image1.jpg',
+  encoding: '7bit',
+  mimetype: 'image/jpeg',
+  size: 1024,
+  buffer: Buffer.from('fake-image-buffer-1'),
+  stream: null,
+  destination: '/uploads',
+  filename: 'image1.jpg',
+  path: '/uploads/image1.jpg',
+}
 
 describe('UserService', () => {
   let service: UserService
@@ -21,7 +35,7 @@ describe('UserService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [BullModule.registerQueue({ name: 'email' })],
-      providers: [UserService, PrismaService, MailingService],
+      providers: [UserService, PrismaService, MailingService, UploadsService],
     })
       .overrideProvider(getQueueToken('email'))
       .useValue({})
@@ -237,10 +251,23 @@ describe('UserService', () => {
         status: true,
         updated_at: null,
         token: null,
+        image_url: null,
+        filename: null,
+        extension: null,
+      }
+
+      const returnImage = {
+        fileName: 'test',
+        extension: '.test',
       }
 
       jest.spyOn(mailingService, 'sendUserWelcome').mockResolvedValue()
-
+      jest
+        .spyOn(service['uploadService'], 'saveUserImage')
+        .mockResolvedValue(returnImage)
+      jest
+        .spyOn(service['uploadService'], 'deleteUserImage')
+        .mockResolvedValue()
       jest
         .spyOn(service['prisma'].company, 'findMany')
         .mockResolvedValueOnce(companies)
@@ -250,7 +277,11 @@ describe('UserService', () => {
         .spyOn(PasswordHasher, 'hashPassword')
         .mockResolvedValue('hashedpassword')
 
-      const result = await service.create(createUserDto, userRequest)
+      const result = await service.create(
+        createUserDto,
+        userRequest,
+        mockImages,
+      )
       expect(result).toEqual(returnUser)
       expect(service['prisma'].user.create).toHaveBeenCalledTimes(1)
       expect(service['prisma'].user.create).toHaveBeenCalledWith({
@@ -258,6 +289,9 @@ describe('UserService', () => {
           ...createUserDto,
           password: 'hashedpassword',
           company: { connect: [{ id: '1' }, { id: '2' }] },
+          image_url: `${process.env.IMAGES_USER_URL}/${returnImage.fileName}${returnImage.extension}`,
+          filename: returnImage.fileName,
+          extension: returnImage.extension,
         },
         include: {
           company: true,
@@ -319,6 +353,9 @@ describe('UserService', () => {
         status: true,
         updated_at: null,
         token: null,
+        image_url: null,
+        filename: null,
+        extension: null,
       }
       jest.spyOn(mailingService, 'sendUserWelcome').mockResolvedValue()
       jest
@@ -329,7 +366,9 @@ describe('UserService', () => {
       jest
         .spyOn(PasswordHasher, 'hashPassword')
         .mockResolvedValue('hashedpassword')
-      expect(service.create(createUserDto, userRequest)).rejects.toThrow(
+      expect(
+        service.create(createUserDto, userRequest, mockImages),
+      ).rejects.toThrow(
         new Error('You are not authorized to access this feature'),
       )
       expect(service['prisma'].user.create).toHaveBeenCalledTimes(0)
@@ -367,9 +406,20 @@ describe('UserService', () => {
         status: true,
         updated_at: null,
         token: null,
+        image_url: null,
+        filename: null,
+        extension: null,
+      }
+
+      const returnImage = {
+        fileName: 'test',
+        extension: '.test',
       }
 
       jest.spyOn(mailingService, 'sendUserWelcome').mockResolvedValue()
+      jest
+        .spyOn(service['uploadService'], 'saveUserImage')
+        .mockResolvedValue(returnImage)
 
       jest.spyOn(service['prisma'].user, 'create').mockResolvedValue(returnUser)
 
@@ -377,7 +427,11 @@ describe('UserService', () => {
         .spyOn(PasswordHasher, 'hashPassword')
         .mockResolvedValue('hashedpassword')
 
-      const result = await service.create(createUserDto, userRequest)
+      const result = await service.create(
+        createUserDto,
+        userRequest,
+        mockImages,
+      )
       expect(result).toEqual(returnUser)
       expect(service['prisma'].user.create).toHaveBeenCalledTimes(1)
       expect(service['prisma'].user.create).toHaveBeenCalledWith({
@@ -385,6 +439,80 @@ describe('UserService', () => {
           ...createUserDto,
           password: 'hashedpassword',
           company: { connect: [{ id: '1' }, { id: '2' }] },
+          image_url: `${process.env.IMAGES_USER_URL}/${returnImage.fileName}${returnImage.extension}`,
+          filename: returnImage.fileName,
+          extension: returnImage.extension,
+        },
+        include: {
+          company: true,
+          profile: true,
+        },
+      })
+    })
+    it('should create a new user with null image', async () => {
+      const createUserDto: CreateUserDto = {
+        name: 'user 1',
+        email: 'user1@email.com',
+        password: '123456',
+        passwordConfirmation: '123456',
+        profile_id: '2',
+        companies_ids: ['1', '2'],
+      }
+
+      const userRequest: userProfile = {
+        id: '2',
+        name: 'user 2',
+        email: 'user2@email.com',
+        profile: {
+          id: '1',
+          name: 'master',
+          description: 'Master',
+        },
+        company: [],
+      }
+
+      const returnUser = {
+        id: '1',
+        name: 'user 1',
+        email: 'user1@email.com',
+        profile_id: '2',
+        created_at: expect.any(Date),
+        password: 'hashedpassword',
+        status: true,
+        updated_at: null,
+        token: null,
+        image_url: null,
+        filename: null,
+        extension: null,
+      }
+
+      const returnImage = {
+        fileName: 'test',
+        extension: '.test',
+      }
+
+      jest.spyOn(mailingService, 'sendUserWelcome').mockResolvedValue()
+      jest
+        .spyOn(service['uploadService'], 'saveUserImage')
+        .mockResolvedValue(returnImage)
+
+      jest.spyOn(service['prisma'].user, 'create').mockResolvedValue(returnUser)
+
+      jest
+        .spyOn(PasswordHasher, 'hashPassword')
+        .mockResolvedValue('hashedpassword')
+
+      const result = await service.create(createUserDto, userRequest, null)
+      expect(result).toEqual(returnUser)
+      expect(service['prisma'].user.create).toHaveBeenCalledTimes(1)
+      expect(service['prisma'].user.create).toHaveBeenCalledWith({
+        data: {
+          ...createUserDto,
+          password: 'hashedpassword',
+          company: { connect: [{ id: '1' }, { id: '2' }] },
+          image_url: `${process.env.IMAGES_USER_URL}/${returnImage.fileName}${returnImage.extension}`,
+          filename: returnImage.fileName,
+          extension: returnImage.extension,
         },
         include: {
           company: true,
@@ -441,7 +569,9 @@ describe('UserService', () => {
       jest
         .spyOn(service['prisma'].user, 'create')
         .mockRejectedValueOnce(new Error())
-      await expect(service.create(createUserDto, userProfile)).rejects.toThrow(
+      await expect(
+        service.create(createUserDto, userProfile, mockImages),
+      ).rejects.toThrow(
         new BadRequestException(
           'passwords and password confirmation do not match',
         ),
@@ -492,6 +622,18 @@ describe('UserService', () => {
           updated_at: null,
         },
       ]
+
+      const returnImage = {
+        fileName: 'test',
+        extension: '.test',
+      }
+
+      jest
+        .spyOn(service['uploadService'], 'saveUserImage')
+        .mockResolvedValue(returnImage)
+      jest
+        .spyOn(service['uploadService'], 'deleteUserImage')
+        .mockResolvedValue()
       jest
         .spyOn(service['prisma'].company, 'findMany')
         .mockResolvedValue(companies)
@@ -501,10 +643,13 @@ describe('UserService', () => {
       })
 
       try {
-        await service.create(createUserDto, userProfile)
+        await service.create(createUserDto, userProfile, mockImages)
       } catch (error) {
         expect(error).toBeInstanceOf(HttpException)
         expect(error.getStatus()).toEqual(HttpStatus.BAD_GATEWAY)
+        expect(service['uploadService'].deleteUserImage).toHaveBeenCalledTimes(
+          1,
+        )
       }
     })
   })
@@ -562,7 +707,18 @@ describe('UserService', () => {
         status: true,
         updated_at: expect.any(Date),
         token: null,
+        image_url: null,
+        filename: null,
+        extension: null,
       }
+
+      const returnImage = {
+        fileName: 'test',
+        extension: '.test',
+      }
+      jest
+        .spyOn(service['uploadService'], 'saveUserImage')
+        .mockResolvedValue(returnImage)
       jest
         .spyOn(service['prisma'].company, 'findMany')
         .mockResolvedValue(companies)
@@ -570,7 +726,12 @@ describe('UserService', () => {
       jest
         .spyOn(PasswordHasher, 'hashPassword')
         .mockResolvedValue('hashedpassword')
-      const result = await service.update('1', updateUserDto, userRequest)
+      const result = await service.update(
+        '1',
+        updateUserDto,
+        userRequest,
+        mockImages,
+      )
       expect(result).toEqual(returnUser)
       expect(service['prisma'].user.update).toHaveBeenCalledTimes(1)
       expect(service['prisma'].user.update).toHaveBeenCalledWith({
@@ -583,6 +744,9 @@ describe('UserService', () => {
             set: [],
             connect: [{ id: '1' }, { id: '2' }],
           },
+          image_url: `${process.env.IMAGES_USER_URL}/${returnImage.fileName}${returnImage.extension}`,
+          filename: returnImage.fileName,
+          extension: returnImage.extension,
         },
         include: {
           profile: true,
@@ -641,7 +805,18 @@ describe('UserService', () => {
         status: true,
         updated_at: expect.any(Date),
         token: null,
+        image_url: null,
+        filename: null,
+        extension: null,
       }
+
+      const returnImage = {
+        fileName: 'test',
+        extension: '.test',
+      }
+      jest
+        .spyOn(service['uploadService'], 'saveUserImage')
+        .mockResolvedValue(returnImage)
       jest
         .spyOn(service['prisma'].company, 'findMany')
         .mockResolvedValue(companies)
@@ -649,7 +824,12 @@ describe('UserService', () => {
       jest
         .spyOn(PasswordHasher, 'hashPassword')
         .mockResolvedValue('hashedpassword')
-      const result = await service.update('1', updateUserDto, userRequest)
+      const result = await service.update(
+        '1',
+        updateUserDto,
+        userRequest,
+        mockImages,
+      )
       expect(result).toEqual(returnUser)
       expect(service['prisma'].user.update).toHaveBeenCalledTimes(1)
       expect(service['prisma'].user.update).toHaveBeenCalledWith({
@@ -661,6 +841,9 @@ describe('UserService', () => {
             set: [],
             connect: [{ id: '1' }, { id: '2' }],
           },
+          image_url: `${process.env.IMAGES_USER_URL}/${returnImage.fileName}${returnImage.extension}`,
+          filename: returnImage.fileName,
+          extension: returnImage.extension,
         },
         include: {
           profile: true,
@@ -703,12 +886,28 @@ describe('UserService', () => {
         status: true,
         updated_at: expect.any(Date),
         token: null,
+        image_url: null,
+        filename: null,
+        extension: null,
       }
+
+      const returnImage = {
+        fileName: 'test',
+        extension: '.test',
+      }
+      jest
+        .spyOn(service['uploadService'], 'saveUserImage')
+        .mockResolvedValue(returnImage)
       jest.spyOn(service['prisma'].user, 'update').mockResolvedValue(returnUser)
       jest
         .spyOn(PasswordHasher, 'hashPassword')
         .mockResolvedValue('hashedpassword')
-      const result = await service.update('1', updateUserDto, userRequest)
+      const result = await service.update(
+        '1',
+        updateUserDto,
+        userRequest,
+        mockImages,
+      )
 
       expect(result).toEqual(returnUser)
       expect(service['prisma'].user.update).toHaveBeenCalledTimes(1)
@@ -722,6 +921,9 @@ describe('UserService', () => {
             set: [],
             connect: [{ id: '3' }],
           },
+          image_url: `${process.env.IMAGES_USER_URL}/${returnImage.fileName}${returnImage.extension}`,
+          filename: returnImage.fileName,
+          extension: returnImage.extension,
         },
         include: {
           profile: true,
@@ -765,12 +967,28 @@ describe('UserService', () => {
         updated_at: expect.any(Date),
         companies_ids: ['1', '2'],
         token: null,
+        image_url: null,
+        filename: null,
+        extension: null,
       }
+
+      const returnImage = {
+        fileName: 'test',
+        extension: '.test',
+      }
+      jest
+        .spyOn(service['uploadService'], 'saveUserImage')
+        .mockResolvedValue(returnImage)
       jest.spyOn(service['prisma'].user, 'update').mockResolvedValue(returnUser)
       jest
         .spyOn(PasswordHasher, 'hashPassword')
         .mockResolvedValue('hashedpassword')
-      const result = await service.update('1', updateUserDto, userRequest)
+      const result = await service.update(
+        '1',
+        updateUserDto,
+        userRequest,
+        mockImages,
+      )
 
       expect(result).toEqual(returnUser)
       expect(service['prisma'].user.update).toHaveBeenCalledTimes(1)
@@ -784,6 +1002,9 @@ describe('UserService', () => {
             set: [],
             connect: [],
           },
+          image_url: `${process.env.IMAGES_USER_URL}/${returnImage.fileName}${returnImage.extension}`,
+          filename: returnImage.fileName,
+          extension: returnImage.extension,
         },
         include: {
           profile: true,
@@ -817,7 +1038,7 @@ describe('UserService', () => {
         .spyOn(service['prisma'].user, 'update')
         .mockRejectedValueOnce(new Error())
       await expect(
-        service.update('1', updateUserDto, userRequest),
+        service.update('1', updateUserDto, userRequest, mockImages),
       ).rejects.toThrow(
         new BadRequestException(
           'passwords and password confirmation do not match',
@@ -850,6 +1071,7 @@ describe('UserService', () => {
           cin: '11111',
           fantasy: 'company test',
           name: 'company',
+          email: 'company@email.com',
           updated_at: null,
           created_at: new Date('2022-01-01'),
         },
@@ -858,6 +1080,7 @@ describe('UserService', () => {
           cin: '11111',
           fantasy: 'company test',
           name: 'company',
+          email: 'company@email.com',
           updated_at: new Date('2022-01-01'),
           created_at: new Date('2022-01-01'),
         },
@@ -905,6 +1128,7 @@ describe('UserService', () => {
           id: '3',
           cin: '11111',
           fantasy: 'company test',
+          email: 'company@email.com',
           name: 'company',
           updated_at: null,
           created_at: new Date('2022-01-01'),
@@ -913,6 +1137,7 @@ describe('UserService', () => {
           id: '4',
           cin: '11111',
           fantasy: 'company test',
+          email: 'company@email.com',
           name: 'company',
           updated_at: new Date('2022-01-01'),
           created_at: new Date('2022-01-01'),
@@ -960,6 +1185,7 @@ describe('UserService', () => {
           id: '3',
           cin: '11111',
           fantasy: 'company test',
+          email: 'company@email.com',
           name: 'company',
           updated_at: null,
           created_at: new Date('2022-01-01'),
@@ -968,6 +1194,7 @@ describe('UserService', () => {
           id: '4',
           cin: '11111',
           fantasy: 'company test',
+          email: 'company@email.com',
           name: 'company',
           updated_at: new Date('2022-01-01'),
           created_at: new Date('2022-01-01'),
