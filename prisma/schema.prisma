@@ -27,6 +27,7 @@ model User {
   image_url String?
   filename String?
   extension String?
+  technical_accompaniments TechnicalAccompaniments[]
   @@map("users")
 }
 
@@ -141,10 +142,12 @@ model Customers {
 
 model TechnicalAccompaniments {
   id String @id @default(cuid())
-  descritpion String
+  description String
   date DateTime @default(now())
   order_service_id Int
   order_service OrderService @relation(fields: [order_service_id], references: [id], onDelete: Cascade)
+  user_id String
+  user User @relation(fields: [user_id], references: [id])
   @@map("technical_accompaniments")
 }
 
