@@ -10,7 +10,8 @@ import { BullModule } from '@nestjs/bull'
 import { EmailWorker } from './email/Email-worker'
 import { OrderModule } from './order/order.module'
 import { UploadsService } from './uploads/uploads.service'
-import { StatusModule } from './status/status.module';
+import { StatusModule } from './status/status.module'
+import { TechnicalAccompanimentsModule } from './technical-accompaniments/technical-accompaniments.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { StatusModule } from './status/status.module';
     }),
     OrderModule,
     StatusModule,
+    TechnicalAccompanimentsModule,
   ],
 
   providers: [PrismaService, MailingService, EmailWorker, UploadsService],

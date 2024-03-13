@@ -266,7 +266,7 @@ export class OrderService {
           : null,
         identification_number: result.identification_number,
         serie_number: result.serie_number,
-        technical_accompaniments: [],
+        technical_accompaniments: result.technical_accompaniments as any,
         type: 'Atualização na',
       }
       await this.mailingService.sendUpdateOrderService(updateOrderService)
