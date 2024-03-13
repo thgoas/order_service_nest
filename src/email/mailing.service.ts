@@ -1,6 +1,7 @@
 import { InjectQueue } from '@nestjs/bull'
 import { Injectable } from '@nestjs/common'
 import { Queue } from 'bull'
+import { EmailOrderService } from './model/email-order-service'
 
 @Injectable()
 export class MailingService {
@@ -15,5 +16,16 @@ export class MailingService {
       user,
       recoveryPasswordLink,
     })
+  }
+  async sendNewCreateOrderService(createOrderService: EmailOrderService) {
+    await this.emailQueue.add('sendNewCreateOrderService', createOrderService)
+  }
+
+  async sendUpdateOrderService(updateOrderService: EmailOrderService) {
+    await this.emailQueue.add('sendUpdateOrderService', updateOrderService)
+  }
+
+  async sendDeleteOrderService(deleteOrderService: EmailOrderService) {
+    await this.emailQueue.add('sendDeleteOrderService', deleteOrderService)
   }
 }

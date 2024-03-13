@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-Br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Ordem de Serviço</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+        <tr>
+            <td style="padding: 20px 0; text-align: center; background-color: #f9f9f9;">
+                <h1 style="color: #333;">Ordem de Serviço</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 20px;">
+                <p><strong>Número da Ordem de Serviço:</strong> {{order_number}}</p>
+                <p><strong>Requerente:</strong> {{applicant}}</p>
+                <p><strong>Data de Abertura:</strong> {{date_entry}}</p>
+                <p><strong>Data de Fechamento:</strong> {{date_departure}}</p>
+                <p><strong>Número de Identificação:</strong> {{identification_number}}</p>
+                <p><strong>Número de Série:</strong> {{serie_number}}</p>
+                <p><strong>Status:</strong> {{status}}</p>
+                <p><strong>Atribuído para Técnicos:</strong> {{technicianEmail}}</p>
+                <p><strong>Descrição:</strong> {{description}}</p>
+                <p><strong>Acompanhamentos:</strong></p>
+                <ul>
+                    {{#each technical_accompaniments}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+                <p><strong>Solução:</strong> {{solution}}</p>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
