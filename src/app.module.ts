@@ -8,7 +8,9 @@ import { AuthModule } from './auth/auth.module'
 import { CompaniesModule } from './companies/companies.module'
 import { BullModule } from '@nestjs/bull'
 import { EmailWorker } from './email/Email-worker'
-import { OrderModule } from './order/order.module';
+import { OrderModule } from './order/order.module'
+import { UploadsService } from './uploads/uploads.service'
+import { StatusModule } from './status/status.module';
 
 @Module({
   imports: [
@@ -24,8 +26,9 @@ import { OrderModule } from './order/order.module';
       },
     }),
     OrderModule,
+    StatusModule,
   ],
 
-  providers: [PrismaService, MailingService, EmailWorker],
+  providers: [PrismaService, MailingService, EmailWorker, UploadsService],
 })
 export class AppModule {}
