@@ -114,9 +114,12 @@ model Customers {
   name String
   fantasy_name String
   identification_number String
-  kind_of_person String
+  legal_person Boolean
   email String
   company_id String
+  image_url String?
+  filename String?
+  extension String?
   company Company @relation(fields: [company_id], references: [id])
   order_service OrderService[]
   @@map("customers")
