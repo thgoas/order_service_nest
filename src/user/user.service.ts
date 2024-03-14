@@ -27,6 +27,7 @@ export class UserService {
     user: userProfile,
     image: Express.Multer.File,
   ) {
+    console.log(createUserDto)
     const userCompaniesIds = createUserDto.companies_ids
     delete createUserDto.companies_ids
     if (user.profile.name === 'admin') {
@@ -68,7 +69,12 @@ export class UserService {
       connect.push({ id: id })
     }
 
-    const imageName = await this.uploadService.saveUserImage(image)
+    const imageName = image
+      ? await this.uploadService.saveUserImage(image)
+      : {
+          fileName: null,
+          extension: null,
+        }
 
     try {
       const result = await this.prisma.user.create({
@@ -93,14 +99,14 @@ export class UserService {
       delete result.password
       return result
     } catch (error) {
-      await this.uploadService.deleteUserImage(imageName)
+      console.log(error)
+      if (imageName.fileName) {
+        await this.uploadService.deleteUserImage(imageName)
+      }
       if (error.code === 'P2002') {
         throw new HttpException('E-mail already exists', HttpStatus.BAD_GATEWAY)
       } else if (error.code) {
-        throw new HttpException(
-          { ...error.meta } + error.code,
-          HttpStatus.BAD_GATEWAY,
-        )
+        throw new HttpException(error, HttpStatus.BAD_GATEWAY)
       } else {
         throw new Error(error)
       }
