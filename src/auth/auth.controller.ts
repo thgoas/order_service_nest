@@ -29,6 +29,7 @@ export class AuthController {
     try {
       return await this.authService.requestPasswordReset(email)
     } catch (error) {
+      console.log(error)
       if (error instanceof NotFoundException) {
         throw new NotFoundException('User not found')
       }
@@ -39,12 +40,12 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(
     @Body(ValidationPipe) updateAuthDto: UpdateAuthDto,
-  ): Promise<void> {
+  ): Promise<ReturnAuthEntity> {
     if (!updateAuthDto.token) {
       throw new BadRequestException('token cannot be null')
     }
     try {
-      await this.authService.resetPassword(updateAuthDto)
+      return await this.authService.resetPassword(updateAuthDto)
     } catch (error) {
       throw new BadRequestException(error.response)
     }
