@@ -292,7 +292,10 @@ export class UserService {
     }
     delete updateUserDto.email
     delete updateUserDto.passwordConfirmation
-    const imageName = await this.uploadService.saveUserImage(image)
+    const imageName = image
+      ? await this.uploadService.saveUserImage(image)
+      : null
+
     try {
       const result = await this.prisma.user.update({
         where: {
@@ -300,11 +303,11 @@ export class UserService {
         },
         data: {
           ...updateUserDto,
-          image_url: imageName.fileName
+          image_url: imageName
             ? `${process.env.IMAGES_USER_URL}/${imageName.fileName}${imageName.extension}`
             : null,
-          filename: imageName.fileName,
-          extension: imageName.extension,
+          filename: imageName ? imageName.fileName : '',
+          extension: imageName ? imageName.extension : '',
           updated_at: new Date(),
           company: {
             set: [],
@@ -319,7 +322,10 @@ export class UserService {
       delete result.password
       return result
     } catch (error) {
-      await this.uploadService.deleteUserImage(imageName)
+      if (image) {
+        await this.uploadService.deleteUserImage(imageName)
+      }
+      console.log(error)
       if (error.code && error.meta) {
         throw new HttpException(error.meta, HttpStatus.BAD_GATEWAY)
       } else {
