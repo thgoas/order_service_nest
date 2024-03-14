@@ -27,7 +27,6 @@ export class UserService {
     user: userProfile,
     image: Express.Multer.File,
   ) {
-    console.log(createUserDto)
     const userCompaniesIds = createUserDto.companies_ids
     delete createUserDto.companies_ids
     if (user.profile.name === 'admin') {
@@ -99,7 +98,6 @@ export class UserService {
       delete result.password
       return result
     } catch (error) {
-      console.log(error)
       if (imageName.fileName) {
         await this.uploadService.deleteUserImage(imageName)
       }
@@ -331,7 +329,6 @@ export class UserService {
       if (image) {
         await this.uploadService.deleteUserImage(imageName)
       }
-      console.log(error)
       if (error.code && error.meta) {
         throw new HttpException(error.meta, HttpStatus.BAD_GATEWAY)
       } else {
