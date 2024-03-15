@@ -12,6 +12,7 @@ import { OrderModule } from './order/order.module'
 import { UploadsService } from './uploads/uploads.service'
 import { StatusModule } from './status/status.module'
 import { TechnicalAccompanimentsModule } from './technical-accompaniments/technical-accompaniments.module';
+import { CustomersModule } from './customers/customers.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { TechnicalAccompanimentsModule } from './technical-accompaniments/techni
     OrderModule,
     StatusModule,
     TechnicalAccompanimentsModule,
+    CustomersModule,
   ],
 
   providers: [PrismaService, MailingService, EmailWorker, UploadsService],
