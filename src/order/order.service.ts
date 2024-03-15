@@ -187,14 +187,6 @@ export class OrderService {
     images: Express.Multer.File[],
     req: any,
   ) {
-    const imagesNames = await this.uploadsService.saveImages(images)
-    const imageData = imagesNames.map((r) => {
-      return {
-        filename: r.fileName,
-        extension: r.extension,
-        url: `${process.env.IMAGES_URL}/${r.fileName}${r.extension}`,
-      }
-    })
     const user = req.user
     try {
       const beforeUpdated = await this.findOne(id, user)
@@ -227,11 +219,6 @@ export class OrderService {
           history_order_service: {
             create: {
               description: `Update Order Service by ${user.userEmail} | => ${JSON.stringify(beforeUpdated)}`,
-            },
-          },
-          images: {
-            createMany: {
-              data: imageData,
             },
           },
         },
@@ -272,8 +259,6 @@ export class OrderService {
       await this.mailingService.sendUpdateOrderService(updateOrderService)
       return result
     } catch (error) {
-      await this.uploadsService.deleteImages(imagesNames)
-
       if (error.code) {
         throw new BadGatewayException(error)
       }
