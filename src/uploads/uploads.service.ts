@@ -34,9 +34,8 @@ export class UploadsService {
   }
 
   async saveUserImage(file: Express.Multer.File) {
-    const image = file['image']
+    const image = file
     const destination = process.env.UPLOADS_USERS_IMAGES
-
     try {
       if (image.mimetype.includes('image')) {
         const fileName =
@@ -53,6 +52,7 @@ export class UploadsService {
         }
       }
     } catch (error) {
+      console.log(error)
       throw new Error('error saving image')
     }
   }
@@ -70,7 +70,6 @@ export class UploadsService {
 
   async deleteUserImage(file: Uploads) {
     const destination = process.env.UPLOADS_USERS_IMAGES
-
     try {
       await unlink(`${destination}/${file.fileName}${file.extension}`)
     } catch (error) {
