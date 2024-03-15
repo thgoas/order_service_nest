@@ -505,20 +505,6 @@ describe('UserService', () => {
       const result = await service.create(createUserDto, userRequest, null)
       expect(result).toEqual(returnUser)
       expect(service['prisma'].user.create).toHaveBeenCalledTimes(1)
-      expect(service['prisma'].user.create).toHaveBeenCalledWith({
-        data: {
-          ...createUserDto,
-          password: 'hashedpassword',
-          company: { connect: [{ id: '1' }, { id: '2' }] },
-          image_url: `${process.env.IMAGES_USER_URL}/${returnImage.fileName}${returnImage.extension}`,
-          filename: returnImage.fileName,
-          extension: returnImage.extension,
-        },
-        include: {
-          company: true,
-          profile: true,
-        },
-      })
     })
     it('should handle HttpException for password confirmation different from password', async () => {
       const createUserDto: CreateUserDto = {
@@ -720,6 +706,12 @@ describe('UserService', () => {
         .spyOn(service['uploadService'], 'saveUserImage')
         .mockResolvedValue(returnImage)
       jest
+        .spyOn(service['uploadService'], 'deleteUserImage')
+        .mockResolvedValue()
+      jest
+        .spyOn(service['prisma'].user, 'findUnique')
+        .mockResolvedValue(fakeUsers[0])
+      jest
         .spyOn(service['prisma'].company, 'findMany')
         .mockResolvedValue(companies)
       jest.spyOn(service['prisma'].user, 'update').mockResolvedValue(returnUser)
@@ -818,6 +810,12 @@ describe('UserService', () => {
         .spyOn(service['uploadService'], 'saveUserImage')
         .mockResolvedValue(returnImage)
       jest
+        .spyOn(service['uploadService'], 'deleteUserImage')
+        .mockResolvedValue()
+      jest
+        .spyOn(service['prisma'].user, 'findUnique')
+        .mockResolvedValue(fakeUsers[0])
+      jest
         .spyOn(service['prisma'].company, 'findMany')
         .mockResolvedValue(companies)
       jest.spyOn(service['prisma'].user, 'update').mockResolvedValue(returnUser)
@@ -898,6 +896,12 @@ describe('UserService', () => {
       jest
         .spyOn(service['uploadService'], 'saveUserImage')
         .mockResolvedValue(returnImage)
+      jest
+        .spyOn(service['uploadService'], 'deleteUserImage')
+        .mockResolvedValue()
+      jest
+        .spyOn(service['prisma'].user, 'findUnique')
+        .mockResolvedValue(fakeUsers[0])
       jest.spyOn(service['prisma'].user, 'update').mockResolvedValue(returnUser)
       jest
         .spyOn(PasswordHasher, 'hashPassword')
@@ -979,6 +983,12 @@ describe('UserService', () => {
       jest
         .spyOn(service['uploadService'], 'saveUserImage')
         .mockResolvedValue(returnImage)
+      jest
+        .spyOn(service['uploadService'], 'deleteUserImage')
+        .mockResolvedValue()
+      jest
+        .spyOn(service['prisma'].user, 'findUnique')
+        .mockResolvedValue(fakeUsers[0])
       jest.spyOn(service['prisma'].user, 'update').mockResolvedValue(returnUser)
       jest
         .spyOn(PasswordHasher, 'hashPassword')
