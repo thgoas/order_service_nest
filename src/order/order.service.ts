@@ -181,12 +181,7 @@ export class OrderService {
     }
   }
 
-  async update(
-    id: number,
-    updateOrderDto: UpdateOrderDto,
-    images: Express.Multer.File[],
-    req: any,
-  ) {
+  async update(id: number, updateOrderDto: UpdateOrderDto, req: any) {
     const user = req.user
     try {
       const beforeUpdated = await this.findOne(id, user)

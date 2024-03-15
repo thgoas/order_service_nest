@@ -748,12 +748,7 @@ describe('OrderService', () => {
         .spyOn(service['prisma'].orderService, 'update')
         .mockResolvedValue(mokeOrders[0])
 
-      const result = await service.update(
-        1,
-        updateOrderDto,
-        mockImages,
-        reqUser,
-      )
+      const result = await service.update(1, updateOrderDto, reqUser)
 
       expect(result).toEqual(mokeOrders[0])
       expect(service['prisma'].orderService.update).toHaveBeenCalledTimes(1)
@@ -840,12 +835,7 @@ describe('OrderService', () => {
         .spyOn(service['prisma'].orderService, 'update')
         .mockResolvedValue(mokeOrders[0])
 
-      const result = await service.update(
-        1,
-        updateOrderDto,
-        mockImages,
-        reqUser,
-      )
+      const result = await service.update(1, updateOrderDto, reqUser)
 
       expect(result).toEqual(mokeOrders[0])
       expect(service['prisma'].orderService.update).toHaveBeenCalledTimes(1)
@@ -939,9 +929,9 @@ describe('OrderService', () => {
 
       jest.spyOn(service['uploadsService'], 'deleteImages').mockResolvedValue()
 
-      await expect(
-        service.update(1, updateOrderDto, mockImages, reqUser),
-      ).rejects.toThrow('Error')
+      await expect(service.update(1, updateOrderDto, reqUser)).rejects.toThrow(
+        'Error',
+      )
       expect(service['prisma'].orderService.update).toHaveBeenCalledTimes(1)
       expect(service['prisma'].orderService.update).toHaveBeenCalledWith({
         where: {
@@ -1027,9 +1017,9 @@ describe('OrderService', () => {
 
       jest.spyOn(service['uploadsService'], 'deleteImages').mockResolvedValue()
 
-      await expect(
-        service.update(1, updateOrderDto, mockImages, reqUser),
-      ).rejects.toThrow('Error')
+      await expect(service.update(1, updateOrderDto, reqUser)).rejects.toThrow(
+        'Error',
+      )
       expect(service['prisma'].orderService.update).toHaveBeenCalledTimes(1)
       expect(service['prisma'].orderService.update).toHaveBeenCalledWith({
         where: {
