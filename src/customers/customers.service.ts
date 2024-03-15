@@ -87,7 +87,6 @@ export class CustomersService {
       })
       return result
     } catch (error) {
-      console.log(error)
       if (imageName.fileName) {
         await this.uploadsService.deleteUserImage(imageName)
       }
