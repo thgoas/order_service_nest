@@ -52,7 +52,11 @@ export class EmailWorker {
   @Process('sendUserWelcome')
   async sendUserWelcome(job: Job<{ user: any; password: string }>) {
     const { user, password } = job.data
-    const html = this.welcomeTemplate({ name: user.name, password })
+    const html = this.welcomeTemplate({
+      name: user.name,
+      password,
+      url: process.env.URL,
+    })
     try {
       await this.transporter.sendMail({
         to: user.email,

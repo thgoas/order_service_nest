@@ -1,13 +1,27 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-Br">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bem vindo</title>
+    <title>Bem Vindo Ordem de Serviço Nest</title>
 </head>
-<body>
-    <h1>Olá, {{ name }}!</h1>
-    <p>Bem vindo a plataforma order service nest sua senha é {{ password }}</p>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+        <tr>
+            <td style="padding: 20px 0; text-align: center; background-color: #f9f9f9;">
+                <h1 style="color: #333;">Bem Vindo {{name}}</h1>
+            </td>
+          
+        </tr>
+        <tr>
+            <td style="padding: 20px;">
+                <p><strong>Para acessar nossa plataforma:</strong> {{url}}</p>
+                <p><strong>sua senha de acesso:</strong> {{password}}</p>
+            </td>
+        </tr>
+    </table>
+
 </body>
 </html>
