@@ -68,7 +68,7 @@ async function main() {
     },
     update: {},
     create: {
-      name: 'Admin',
+      name: 'admin',
       description: 'Admin',
     },
   })

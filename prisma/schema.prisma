@@ -113,9 +113,9 @@ model Customers {
   id String @id @default(cuid())
   name String
   fantasy_name String
-  identification_number String
+  identification_number String @unique
   legal_person Boolean
-  email String
+  email String @unique
   company_id String
   image_url String?
   filename String?
