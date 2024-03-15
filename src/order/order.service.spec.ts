@@ -738,13 +738,6 @@ describe('OrderService', () => {
         customers_id: '1',
       }
 
-      const returnMockImages: Uploads[] = [
-        {
-          fileName: 'image test',
-          extension: '.jpg',
-        },
-      ]
-
       jest
         .spyOn(service['mailingService'], 'sendUpdateOrderService')
         .mockResolvedValue()
@@ -754,22 +747,14 @@ describe('OrderService', () => {
       jest
         .spyOn(service['prisma'].orderService, 'update')
         .mockResolvedValue(mokeOrders[0])
-      jest
-        .spyOn(service['uploadsService'], 'saveImages')
-        .mockResolvedValue(returnMockImages)
+
       const result = await service.update(
         1,
         updateOrderDto,
         mockImages,
         reqUser,
       )
-      const images = returnMockImages.map((r) => {
-        return {
-          filename: r.fileName,
-          extension: r.extension,
-          url: `${process.env.IMAGES_URL}/${r.fileName}${r.extension}`,
-        }
-      })
+
       expect(result).toEqual(mokeOrders[0])
       expect(service['prisma'].orderService.update).toHaveBeenCalledTimes(1)
       expect(service['prisma'].orderService.update).toHaveBeenCalledWith({
@@ -783,11 +768,6 @@ describe('OrderService', () => {
               description: 'Update Order Service by test@test.com | => null',
             },
           },
-          images: {
-            createMany: {
-              data: images,
-            },
-          },
         },
         include: {
           company: true,
@@ -798,10 +778,6 @@ describe('OrderService', () => {
           technical_accompaniments: true,
         },
       })
-      expect(service['uploadsService'].saveImages).toHaveBeenCalledTimes(1)
-      expect(service['uploadsService'].saveImages).toHaveBeenCalledWith(
-        mockImages,
-      )
     })
 
     it('should edit with success for user admin or common', async () => {
@@ -854,13 +830,6 @@ describe('OrderService', () => {
         customers_id: '1',
       }
 
-      const returnMockImages: Uploads[] = [
-        {
-          fileName: 'image test',
-          extension: '.jpg',
-        },
-      ]
-
       jest
         .spyOn(service['mailingService'], 'sendUpdateOrderService')
         .mockResolvedValue()
@@ -870,22 +839,14 @@ describe('OrderService', () => {
       jest
         .spyOn(service['prisma'].orderService, 'update')
         .mockResolvedValue(mokeOrders[0])
-      jest
-        .spyOn(service['uploadsService'], 'saveImages')
-        .mockResolvedValue(returnMockImages)
+
       const result = await service.update(
         1,
         updateOrderDto,
         mockImages,
         reqUser,
       )
-      const images = returnMockImages.map((r) => {
-        return {
-          filename: r.fileName,
-          extension: r.extension,
-          url: `${process.env.IMAGES_URL}/${r.fileName}${r.extension}`,
-        }
-      })
+
       expect(result).toEqual(mokeOrders[0])
       expect(service['prisma'].orderService.update).toHaveBeenCalledTimes(1)
       expect(service['prisma'].orderService.update).toHaveBeenCalledWith({
@@ -904,11 +865,6 @@ describe('OrderService', () => {
               description: 'Update Order Service by test@test.com | => null',
             },
           },
-          images: {
-            createMany: {
-              data: images,
-            },
-          },
         },
         include: {
           company: true,
@@ -919,10 +875,6 @@ describe('OrderService', () => {
           technical_accompaniments: true,
         },
       })
-      expect(service['uploadsService'].saveImages).toHaveBeenCalledTimes(1)
-      expect(service['uploadsService'].saveImages).toHaveBeenCalledWith(
-        mockImages,
-      )
     })
 
     it('should return exception and delete Images for user master', async () => {
@@ -975,13 +927,6 @@ describe('OrderService', () => {
         customers_id: '1',
       }
 
-      const returnMockImages: Uploads[] = [
-        {
-          fileName: 'image test',
-          extension: '.jpg',
-        },
-      ]
-
       jest
         .spyOn(service['mailingService'], 'sendUpdateOrderService')
         .mockResolvedValue()
@@ -991,18 +936,9 @@ describe('OrderService', () => {
       jest
         .spyOn(service['prisma'].orderService, 'update')
         .mockRejectedValue(new Error())
-      jest
-        .spyOn(service['uploadsService'], 'saveImages')
-        .mockResolvedValue(returnMockImages)
+
       jest.spyOn(service['uploadsService'], 'deleteImages').mockResolvedValue()
 
-      const images = returnMockImages.map((r) => {
-        return {
-          filename: r.fileName,
-          extension: r.extension,
-          url: `${process.env.IMAGES_URL}/${r.fileName}${r.extension}`,
-        }
-      })
       await expect(
         service.update(1, updateOrderDto, mockImages, reqUser),
       ).rejects.toThrow('Error')
@@ -1018,11 +954,6 @@ describe('OrderService', () => {
               description: 'Update Order Service by test@test.com | => null',
             },
           },
-          images: {
-            createMany: {
-              data: images,
-            },
-          },
         },
         include: {
           company: true,
@@ -1033,20 +964,6 @@ describe('OrderService', () => {
           technical_accompaniments: true,
         },
       })
-      expect(service['uploadsService'].saveImages).toHaveBeenCalledTimes(1)
-      expect(service['uploadsService'].saveImages).toHaveBeenCalledWith(
-        mockImages,
-      )
-      const imagesName = images.map((r) => {
-        return {
-          fileName: r.filename,
-          extension: r.extension,
-        }
-      })
-      expect(service['uploadsService'].deleteImages).toHaveBeenCalledTimes(1)
-      expect(service['uploadsService'].deleteImages).toHaveBeenCalledWith(
-        imagesName,
-      )
     })
     it('should return exception and delete Images for user admin or common', async () => {
       const reqUser = {
@@ -1098,13 +1015,6 @@ describe('OrderService', () => {
         customers_id: '1',
       }
 
-      const returnMockImages: Uploads[] = [
-        {
-          fileName: 'image test',
-          extension: '.jpg',
-        },
-      ]
-
       jest
         .spyOn(service['mailingService'], 'sendUpdateOrderService')
         .mockResolvedValue()
@@ -1114,18 +1024,9 @@ describe('OrderService', () => {
       jest
         .spyOn(service['prisma'].orderService, 'update')
         .mockRejectedValue(new Error())
-      jest
-        .spyOn(service['uploadsService'], 'saveImages')
-        .mockResolvedValue(returnMockImages)
+
       jest.spyOn(service['uploadsService'], 'deleteImages').mockResolvedValue()
 
-      const images = returnMockImages.map((r) => {
-        return {
-          filename: r.fileName,
-          extension: r.extension,
-          url: `${process.env.IMAGES_URL}/${r.fileName}${r.extension}`,
-        }
-      })
       await expect(
         service.update(1, updateOrderDto, mockImages, reqUser),
       ).rejects.toThrow('Error')
@@ -1146,11 +1047,6 @@ describe('OrderService', () => {
               description: 'Update Order Service by test@test.com | => null',
             },
           },
-          images: {
-            createMany: {
-              data: images,
-            },
-          },
         },
         include: {
           company: true,
@@ -1161,20 +1057,6 @@ describe('OrderService', () => {
           technical_accompaniments: true,
         },
       })
-      expect(service['uploadsService'].saveImages).toHaveBeenCalledTimes(1)
-      expect(service['uploadsService'].saveImages).toHaveBeenCalledWith(
-        mockImages,
-      )
-      const imagesName = images.map((r) => {
-        return {
-          fileName: r.filename,
-          extension: r.extension,
-        }
-      })
-      expect(service['uploadsService'].deleteImages).toHaveBeenCalledTimes(1)
-      expect(service['uploadsService'].deleteImages).toHaveBeenCalledWith(
-        imagesName,
-      )
     })
   })
   describe('delete order', () => {
