@@ -63,7 +63,6 @@ export class UserController {
     @Request() req: any,
     @UploadedFile() image: Express.Multer.File,
   ) {
-    console.log(req)
     const user = req.userProfile
     if (
       user.profile.name !== Role.Admin &&

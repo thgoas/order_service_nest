@@ -265,16 +265,18 @@ export class UserService {
         },
       })
       const companies = []
-      for (const id of userCompaniesIds) {
-        const findResult = result.find((f) => f.id === id)
-        if (findResult) {
-          companies.push(findResult)
+      if (userCompaniesIds) {
+        for (const id of userCompaniesIds) {
+          const findResult = result.find((f) => f.id === id)
+          if (findResult) {
+            companies.push(findResult)
+          }
         }
+        if (userCompaniesIds.length !== companies.length)
+          throw new ForbiddenException(
+            'You are not authorized to access this feature',
+          )
       }
-      if (userCompaniesIds.length !== companies.length)
-        throw new ForbiddenException(
-          'You are not authorized to access this feature',
-        )
     }
     if (
       updateUserDto.password &&
@@ -291,8 +293,10 @@ export class UserService {
 
     passwordHash ? (updateUserDto.password = passwordHash) : null
     const connect = []
-    for (const id of userCompaniesIds) {
-      connect.push({ id: id })
+    if (userCompaniesIds) {
+      for (const id of userCompaniesIds) {
+        connect.push({ id: id })
+      }
     }
     delete updateUserDto.email
     delete updateUserDto.passwordConfirmation
@@ -301,6 +305,13 @@ export class UserService {
       : null
 
     try {
+      const beforeUser = await this.findOne(id, user)
+      if (imageName && beforeUser && beforeUser.filename) {
+        await this.uploadService.deleteUserImage({
+          fileName: beforeUser.filename,
+          extension: beforeUser.extension,
+        })
+      }
       const result = await this.prisma.user.update({
         where: {
           id: id,
@@ -309,9 +320,9 @@ export class UserService {
           ...updateUserDto,
           image_url: imageName
             ? `${process.env.IMAGES_USER_URL}/${imageName.fileName}${imageName.extension}`
-            : null,
-          filename: imageName ? imageName.fileName : '',
-          extension: imageName ? imageName.extension : '',
+            : `${process.env.IMAGES_USER_URL}/${beforeUser.filename}${beforeUser.extension}`,
+          filename: imageName ? imageName.fileName : beforeUser.filename,
+          extension: imageName ? imageName.extension : beforeUser.extension,
           updated_at: new Date(),
           company: {
             set: [],
