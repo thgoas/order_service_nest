@@ -48,15 +48,13 @@ export class OrderController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'image' }]))
   @UsePipes(new ValidationPipe())
   update(
     @Param('id') id: string,
     @Body() updateOrderDto: UpdateOrderDto,
-    @UploadedFiles() images: Express.Multer.File[],
     @Request() req: any,
   ) {
-    return this.orderService.update(+id, updateOrderDto, images, req)
+    return this.orderService.update(+id, updateOrderDto, req)
   }
 
   @Delete(':id')
