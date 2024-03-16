@@ -58,7 +58,7 @@ export class UploadsService {
   }
 
   async deleteImages(files: Uploads[]) {
-    const destination = process.env.UPLOADS_USERS_IMAGES
+    const destination = process.env.UPLOADS_FILE_IMAGES
     for (const i in files) {
       try {
         await unlink(`${destination}/${files[i].fileName}${files[i].extension}`)
