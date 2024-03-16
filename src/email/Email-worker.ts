@@ -64,6 +64,7 @@ export class EmailWorker {
         html: html,
       })
       console.log('Email successfully sent to ', user.email)
+      return true
     } catch (error) {
       console.error('Error sending email to ', user.email, ': ', error)
       return false
@@ -87,6 +88,7 @@ export class EmailWorker {
         html: html,
       })
       console.log('Email recovery password successfully sent to ', user.email)
+      return true
     } catch (error) {
       console.error(
         'Error recovery password sending email to ',
@@ -143,6 +145,7 @@ export class EmailWorker {
           createOrderService.technicianEmail,
         )
       }
+      return true
     } catch (error) {
       console.error(
         'Error new Order service sending email to ',
@@ -205,6 +208,7 @@ export class EmailWorker {
           updateOrderService.technicianEmail,
         )
       }
+      return true
     } catch (error) {
       console.error(
         'Error update Order service sending email to ',
@@ -258,6 +262,7 @@ export class EmailWorker {
           deleteOrderService.technicianEmail,
         )
       }
+      return true
     } catch (error) {
       console.error(
         'Error Delete Order service sending email to ',

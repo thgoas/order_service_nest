@@ -8,24 +8,38 @@ export class MailingService {
   constructor(@InjectQueue('email') private emailQueue: Queue) {}
 
   async sendUserWelcome(user: any, password: string) {
-    await this.emailQueue.add('sendUserWelcome', { user, password })
+    await this.emailQueue.add(
+      'sendUserWelcome',
+      { user, password },
+      { removeOnComplete: true },
+    )
   }
 
   async sendUserRecoveryPasswordLink(user: any, recoveryPasswordLink: string) {
-    await this.emailQueue.add('sendUserRecoveryPasswordLink', {
-      user,
-      recoveryPasswordLink,
-    })
+    await this.emailQueue.add(
+      'sendUserRecoveryPasswordLink',
+      {
+        user,
+        recoveryPasswordLink,
+      },
+      { removeOnComplete: true },
+    )
   }
   async sendNewCreateOrderService(createOrderService: EmailOrderService) {
-    await this.emailQueue.add('sendNewCreateOrderService', createOrderService)
+    await this.emailQueue.add('sendNewCreateOrderService', createOrderService, {
+      removeOnComplete: true,
+    })
   }
 
   async sendUpdateOrderService(updateOrderService: EmailOrderService) {
-    await this.emailQueue.add('sendUpdateOrderService', updateOrderService)
+    await this.emailQueue.add('sendUpdateOrderService', updateOrderService, {
+      removeOnComplete: true,
+    })
   }
 
   async sendDeleteOrderService(deleteOrderService: EmailOrderService) {
-    await this.emailQueue.add('sendDeleteOrderService', deleteOrderService)
+    await this.emailQueue.add('sendDeleteOrderService', deleteOrderService, {
+      removeOnComplete: true,
+    })
   }
 }
