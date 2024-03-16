@@ -13,6 +13,7 @@ import { UploadsService } from './uploads/uploads.service'
 import { StatusModule } from './status/status.module'
 import { TechnicalAccompanimentsModule } from './technical-accompaniments/technical-accompaniments.module';
 import { CustomersModule } from './customers/customers.module';
+import { ImagesModule } from './images/images.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CustomersModule } from './customers/customers.module';
     StatusModule,
     TechnicalAccompanimentsModule,
     CustomersModule,
+    ImagesModule,
   ],
 
   providers: [PrismaService, MailingService, EmailWorker, UploadsService],
