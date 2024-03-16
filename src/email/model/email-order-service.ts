@@ -9,7 +9,8 @@ export interface EmailOrderService {
   technicianEmail: string
   userEmail: string
   description: string
-  technical_accompaniments?: []
+  technical_accompaniments?: string[]
   solution: string
   type?: string
+  images?: string[]
 }

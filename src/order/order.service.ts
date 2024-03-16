@@ -83,7 +83,13 @@ export class OrderService {
           : null,
         identification_number: createResult.identification_number,
         serie_number: createResult.serie_number,
-        technical_accompaniments: [],
+        technical_accompaniments: createResult.technical_accompaniments.map(
+          (r) => r.description,
+        ),
+        images: createResult.images.map(
+          (r) =>
+            `${process.env.UPLOADS_FILE_IMAGES}/${r.filename}${r.extension}`,
+        ),
       }
 
       await this.mailingService.sendNewCreateOrderService(createNewOrderService)
@@ -248,8 +254,14 @@ export class OrderService {
           : null,
         identification_number: result.identification_number,
         serie_number: result.serie_number,
-        technical_accompaniments: result.technical_accompaniments as any,
+        technical_accompaniments: result.technical_accompaniments.map(
+          (r) => r.description,
+        ),
         type: 'Atualização na',
+        images: result.images.map(
+          (r) =>
+            `${process.env.UPLOADS_FILE_IMAGES}/${r.filename}${r.extension}`,
+        ),
       }
       await this.mailingService.sendUpdateOrderService(updateOrderService)
       return result
@@ -293,6 +305,7 @@ export class OrderService {
           images: true,
           customers: true,
           status: true,
+          technical_accompaniments: true,
         },
       })
       const deleteImages: Uploads[] = result.images.map((r) => {
@@ -325,8 +338,14 @@ export class OrderService {
           : null,
         identification_number: result.identification_number,
         serie_number: result.serie_number,
-        technical_accompaniments: [],
+        technical_accompaniments: result.technical_accompaniments.map(
+          (r) => r.description,
+        ),
         type: 'foi excluída',
+        images: result.images.map(
+          (r) =>
+            `${process.env.UPLOADS_FILE_IMAGES}/${r.filename}${r.extension}`,
+        ),
       }
 
       await this.uploadsService.deleteImages(deleteImages)

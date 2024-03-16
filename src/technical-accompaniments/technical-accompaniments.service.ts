@@ -55,8 +55,15 @@ export class TechnicalAccompanimentsService {
           : null,
         identification_number: resultOrderServiceFind.identification_number,
         serie_number: resultOrderServiceFind.serie_number,
-        technical_accompaniments: [],
+        technical_accompaniments:
+          resultOrderServiceFind.technical_accompaniments.map(
+            (r) => r.description,
+          ),
         type: 'Atualização na',
+        images: resultOrderServiceFind.images.map(
+          (r) =>
+            `${process.env.UPLOADS_FILE_IMAGES}/${r.filename}${r.extension}`,
+        ),
       }
       await this.mailingService.sendUpdateOrderService(updateOrderService)
       return resultOrderServiceFind
@@ -118,8 +125,15 @@ export class TechnicalAccompanimentsService {
           : null,
         identification_number: resultOrderServiceFind.identification_number,
         serie_number: resultOrderServiceFind.serie_number,
-        technical_accompaniments: [],
+        technical_accompaniments:
+          resultOrderServiceFind.technical_accompaniments.map(
+            (r) => r.description,
+          ),
         type: 'Atualização na',
+        images: resultOrderServiceFind.images.map(
+          (r) =>
+            `${process.env.UPLOADS_FILE_IMAGES}/${r.filename}${r.extension}`,
+        ),
       }
       await this.mailingService.sendUpdateOrderService(updateOrderService)
       return resultOrderServiceFind
@@ -165,8 +179,15 @@ export class TechnicalAccompanimentsService {
           : null,
         identification_number: resultOrderServiceFind.identification_number,
         serie_number: resultOrderServiceFind.serie_number,
-        technical_accompaniments: [],
+        technical_accompaniments:
+          resultOrderServiceFind.technical_accompaniments.map(
+            (r) => r.description,
+          ),
         type: 'Atualização na',
+        images: resultOrderServiceFind.images.map(
+          (r) =>
+            `${process.env.UPLOADS_FILE_IMAGES}/${r.filename}${r.extension}`,
+        ),
       }
       await this.mailingService.sendUpdateOrderService(updateOrderService)
       return resultOrderServiceFind

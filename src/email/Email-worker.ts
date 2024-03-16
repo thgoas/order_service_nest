@@ -123,6 +123,9 @@ export class EmailWorker {
           to: createOrderService.userEmail,
           subject: `Nova Order de Serviço Número: ${createOrderService.order_number}`,
           html: html,
+          attachments: createOrderService.images.map((r) => ({
+            path: r,
+          })),
         })
         console.log(
           'Email new Order service userEmail successfully sent to ',
@@ -162,6 +165,9 @@ export class EmailWorker {
           to: updateOrderService.applicant,
           subject: `${updateOrderService.type} Order de Serviço Número: ${updateOrderService.order_number}`,
           html: html,
+          attachments: updateOrderService.images.map((r) => ({
+            path: r,
+          })),
         })
         console.log(
           'Email Update Order service applicant successfully sent to ',
@@ -176,6 +182,9 @@ export class EmailWorker {
           to: updateOrderService.userEmail,
           subject: `${updateOrderService.type} Order de Serviço Número: ${updateOrderService.order_number}`,
           html: html,
+          attachments: updateOrderService.images.map((r) => ({
+            path: r,
+          })),
         })
         console.log(
           'Email update Order service userEmail successfully sent to ',
@@ -187,6 +196,9 @@ export class EmailWorker {
           to: updateOrderService.technicianEmail,
           subject: `${updateOrderService.type} Order de Serviço Número: ${updateOrderService.order_number}`,
           html: html,
+          attachments: updateOrderService.images.map((r) => ({
+            path: r,
+          })),
         })
         console.log(
           'Email update Order service technician successfully sent to ',
