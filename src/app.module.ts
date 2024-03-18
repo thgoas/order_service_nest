@@ -11,9 +11,9 @@ import { EmailWorker } from './email/Email-worker'
 import { OrderModule } from './order/order.module'
 import { UploadsService } from './uploads/uploads.service'
 import { StatusModule } from './status/status.module'
-import { TechnicalAccompanimentsModule } from './technical-accompaniments/technical-accompaniments.module';
-import { CustomersModule } from './customers/customers.module';
-import { ImagesModule } from './images/images.module';
+import { TechnicalAccompanimentsModule } from './technical-accompaniments/technical-accompaniments.module'
+import { CustomersModule } from './customers/customers.module'
+import { ImagesModule } from './images/images.module'
 
 @Module({
   imports: [
