@@ -72,6 +72,7 @@ const mokeOrders: any = [
       name: 'open',
       description: 'open',
     },
+    technical_accompaniments: [],
     images: [{ filename: 'image test', extension: '.test' }],
   },
   {
@@ -94,6 +95,7 @@ const mokeOrders: any = [
       name: 'open',
       description: 'open',
     },
+    technical_accompaniments: [],
   },
 ]
 describe('OrderService', () => {
@@ -1110,6 +1112,7 @@ describe('OrderService', () => {
           customers: true,
           images: true,
           status: true,
+          technical_accompaniments: true,
         },
       })
       const deleteImages = result.images.map((r) => {
@@ -1189,6 +1192,7 @@ describe('OrderService', () => {
           customers: true,
           images: true,
           status: true,
+          technical_accompaniments: true,
         },
       })
       const deleteImages = result.images.map((r) => {
