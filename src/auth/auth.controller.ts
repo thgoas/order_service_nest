@@ -6,11 +6,14 @@ import {
   HttpStatus,
   NotFoundException,
   Post,
+  Request,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { UpdateAuthDto } from './dto/update-auth.dto'
 import { ReturnAuthEntity } from './entities/return-auth-entity'
+import { AuthGuard } from './auth.guards'
 
 @Controller('auth')
 export class AuthController {
@@ -20,6 +23,12 @@ export class AuthController {
   @Post('login')
   signIn(@Body() signInDto: Record<string, any>) {
     return this.authService.signIn(signInDto.email, signInDto.password)
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('reload')
+  async reload(@Request() req: any) {
+    return { name: req.user.sub, email: req.user.userEmail }
   }
 
   @Post('forgot-password')
