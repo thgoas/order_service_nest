@@ -16,7 +16,7 @@ export class ImagesService {
   ) {}
   async create(
     createImageDto: CreateImageDto,
-    images: Express.Multer.File[],
+    images: Express.Multer.File[] | any,
     req: any,
   ) {
     if (images['image'] === undefined) {
@@ -76,7 +76,6 @@ export class ImagesService {
       await this.mailingService.sendUpdateOrderService(updateOrderService)
       return resultOrderServiceFind
     } catch (error) {
-      console.log(error)
       if (error.code) {
         throw new BadGatewayException(error)
       } else {

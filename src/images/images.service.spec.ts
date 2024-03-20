@@ -82,6 +82,7 @@ const fakeOrderService = [
       description: 'open',
     },
     images: [{ filename: 'image test', extension: '.test' }],
+    technical_accompaniments: [],
   },
   {
     id: 2,
@@ -103,6 +104,7 @@ const fakeOrderService = [
       name: 'open',
       description: 'open',
     },
+    technical_accompaniments: [],
   },
 ]
 
@@ -162,7 +164,8 @@ describe('ImagesService', () => {
       jest
         .spyOn(service['prisma'].orderService, 'findUnique')
         .mockResolvedValue(fakeOrderService[0])
-      const result = await service.create(dto, mockImages, req)
+      const images = { image: mockImages }
+      const result = await service.create(dto, images, req)
 
       expect(result).toEqual(fakeOrderService[0])
       expect(service['prisma'].orderService.findUnique).toHaveBeenCalledTimes(1)
