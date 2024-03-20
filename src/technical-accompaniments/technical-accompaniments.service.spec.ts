@@ -63,6 +63,7 @@ const fakeOrderService = [
       description: 'open',
     },
     images: [{ filename: 'image test', extension: '.test' }],
+    technical_accompaniments: [],
   },
   {
     id: 2,
@@ -84,6 +85,7 @@ const fakeOrderService = [
       name: 'open',
       description: 'open',
     },
+    technical_accompaniments: [],
   },
 ]
 
