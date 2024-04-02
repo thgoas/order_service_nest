@@ -1,6 +1,6 @@
 import {
   IsArray,
-  IsBoolean,
+  IsBooleanString,
   IsDate,
   IsEmail,
   IsNotEmpty,
@@ -40,7 +40,7 @@ export class CreateUserDto {
   passwordConfirmation: string
 
   @IsOptional()
-  @IsBoolean()
+  @IsBooleanString()
   status?: boolean
 
   @IsNotEmpty()
