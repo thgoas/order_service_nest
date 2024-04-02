@@ -1,5 +1,5 @@
 import {
-  IsBoolean,
+  IsBooleanString,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -38,7 +38,7 @@ export class CreateUserMasterDto {
   passwordConfirmation: string
 
   @IsOptional()
-  @IsBoolean()
+  @IsBooleanString()
   status?: boolean
 
   @IsNotEmpty()
