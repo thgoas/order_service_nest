@@ -37,7 +37,19 @@ export class AuthService {
     return {
       name: user.name,
       email: user.email,
+      profileName: user.profile.name,
+      imageUrl: user.image_url,
       access_token: await this.jwtService.signAsync(payload),
+    }
+  }
+
+  async loader(email: string) {
+    const user = await this.userService.findOneComplete(null, email)
+    return {
+      name: user.name,
+      email: user.email,
+      profileName: user.profile.name,
+      imageUrl: user.image_url,
     }
   }
 

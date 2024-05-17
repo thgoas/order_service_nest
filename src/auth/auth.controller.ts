@@ -28,7 +28,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Post('reload')
   async reload(@Request() req: any) {
-    return { name: req.user.sub, email: req.user.userEmail }
+    return this.authService.loader(req.user.userEmail)
   }
 
   @Post('forgot-password')
