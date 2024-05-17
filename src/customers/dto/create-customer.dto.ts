@@ -22,7 +22,7 @@ export class CreateCustomerDto {
 
   @IsNotEmpty()
   @IsBooleanString()
-  legal_person: boolean
+  legal_person: string
 
   @IsNotEmpty()
   @IsEmail()
