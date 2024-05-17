@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   ValidationPipe,
+  Request,
 } from '@nestjs/common'
 import { CompaniesService } from './companies.service'
 import { CreateCompanyDto } from './dto/create-company.dto'
@@ -29,9 +30,10 @@ export class CompaniesController {
   }
 
   @Get()
-  @Roles(Role.Master)
-  findAll() {
-    return this.companiesService.findAll()
+  @Roles(Role.Master, Role.Admin, Role.Common)
+  findAll(@Request() req: any) {
+    const user = req.userProfile
+    return this.companiesService.findAll(user)
   }
 
   @Get(':id')

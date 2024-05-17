@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { CreateCompanyDto } from './dto/create-company.dto'
 import { UpdateCompanyDto } from './dto/update-company.dto'
 import { PrismaService } from '../common/prisma/prisma.service'
+import { userProfile } from 'src/user/entities/user_profile.entity'
 
 @Injectable()
 export class CompaniesService {
@@ -24,19 +25,45 @@ export class CompaniesService {
     }
   }
 
-  async findAll() {
+  async findAll(user: userProfile) {
+    const profileName = user.profile.name
     try {
-      return await this.prisma.company.findMany({
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
+      if (profileName === 'master') {
+        return await this.prisma.company.findMany({
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
             },
           },
-        },
-      })
+        })
+      } else {
+        return await this.prisma.company.findMany({
+          where: {
+            user: {
+              some: {
+                profile: {
+                  name: {
+                    not: 'master',
+                  },
+                },
+              },
+            },
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        })
+      }
     } catch (error) {
       if (error.meta) {
         throw new HttpException(error.meta, HttpStatus.BAD_GATEWAY)
