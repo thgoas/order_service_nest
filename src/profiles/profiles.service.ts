@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { PrismaService } from '../common/prisma/prisma.service'
+import { userProfile } from 'src/user/entities/user_profile.entity'
 
 @Injectable()
 export class ProfilesService {
@@ -38,9 +39,21 @@ export class ProfilesService {
     }
   }
 
-  findAll() {
+  findAll(user: userProfile) {
+    const profileName = (user.profile.name = user.profile.name)
+
     try {
-      return this.prisma.profile.findMany()
+      if (profileName === 'master') {
+        return this.prisma.profile.findMany()
+      } else {
+        return this.prisma.profile.findMany({
+          where: {
+            name: {
+              not: 'master',
+            },
+          },
+        })
+      }
     } catch (error) {
       throw new Error(error)
     }

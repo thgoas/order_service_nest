@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   ValidationPipe,
+  Request,
 } from '@nestjs/common'
 import { ProfilesService } from './profiles.service'
 import { AuthGuard } from '../auth/auth.guards'
@@ -29,9 +30,10 @@ export class ProfilesController {
   }
 
   @Get()
-  @Roles(Role.Master)
-  findAll() {
-    return this.profilesService.findAll()
+  @Roles(Role.Master, Role.Admin)
+  findAll(@Request() req: any) {
+    const user = req.userProfile
+    return this.profilesService.findAll(user)
   }
 
   @Get(':id')
