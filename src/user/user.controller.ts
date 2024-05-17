@@ -80,6 +80,8 @@ export class UserController {
   @Roles(Role.Admin, Role.Master)
   remove(@Param('id') id: string, @Request() req: any) {
     const user = req.userProfile
+
+    if (user.id === id) throw new ForbiddenException()
     return this.userService.remove(id, user)
   }
 }

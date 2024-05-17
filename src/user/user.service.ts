@@ -78,7 +78,10 @@ export class UserService {
     try {
       const result = await this.prisma.user.create({
         data: {
-          ...createUserDto,
+          name: createUserDto.name,
+          email: createUserDto.email,
+          profile_id: createUserDto.profile_id,
+          status: createUserDto.status === 'true' ? true : false,
           image_url: imageName.fileName
             ? `${process.env.IMAGES_USER_URL}/${imageName.fileName}${imageName.extension}`
             : null,
@@ -228,11 +231,13 @@ export class UserService {
   }
 
   async updateForgotPassword(id: string, updateUserDto: UpdateUserDto) {
+    const status = updateUserDto.status === 'true' ? true : false
     try {
       await this.prisma.user.update({
         where: { id },
         data: {
           ...updateUserDto,
+          status,
         },
       })
     } catch (error) {
@@ -246,8 +251,10 @@ export class UserService {
     user: userProfile,
     image: Express.Multer.File,
   ) {
+    const userComplete = await this.findOneComplete(id, '')
     let userCompaniesIds = updateUserDto.companies_ids
     delete updateUserDto.companies_ids
+
     if (user.profile.name === 'common') {
       delete updateUserDto.profile_id
       delete updateUserDto.status
@@ -283,7 +290,7 @@ export class UserService {
       updateUserDto.password !== updateUserDto.passwordConfirmation
     ) {
       throw new BadRequestException(
-        'passwords and password confirmation do not match',
+        'password and password confirmation do not match',
       )
     }
 
@@ -317,7 +324,12 @@ export class UserService {
           id: id,
         },
         data: {
-          ...updateUserDto,
+          name: updateUserDto.name,
+          status: updateUserDto.status === 'true' ? true : false,
+          profile_id: updateUserDto.profile_id,
+          password: updateUserDto.password
+            ? passwordHash
+            : userComplete.password,
           image_url: imageName
             ? `${process.env.IMAGES_USER_URL}/${imageName.fileName}${imageName.extension}`
             : `${process.env.IMAGES_USER_URL}/${beforeUser.filename}${beforeUser.extension}`,
@@ -340,8 +352,8 @@ export class UserService {
       if (image) {
         await this.uploadService.deleteUserImage(imageName)
       }
-      if (error.code && error.meta) {
-        throw new HttpException(error.meta, HttpStatus.BAD_GATEWAY)
+      if (error.code) {
+        throw new HttpException(error, HttpStatus.BAD_GATEWAY)
       } else {
         throw new Error(error)
       }
@@ -371,7 +383,7 @@ export class UserService {
       return result
     } catch (error) {
       if (error.code === 'P2025') {
-        throw new NotFoundException(error.meta.cause)
+        throw new NotFoundException(error)
       } else {
         throw new Error(error)
       }

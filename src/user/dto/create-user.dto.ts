@@ -41,7 +41,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsBooleanString()
-  status?: boolean
+  status?: string
 
   @IsNotEmpty()
   @IsString()
